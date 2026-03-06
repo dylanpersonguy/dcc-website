@@ -7,6 +7,7 @@ export const en = {
     investors: "Investors",
     roadmap: "Roadmap",
     vision: "Vision",
+    terminal: "Terminal",
     getStarted: "Get Started",
   },
 
@@ -555,6 +556,14 @@ export const en = {
           "Current ecosystem focus areas include AI-enhanced DeFi protocols, cross-border remittance rails for Central America, carbon credit tokenization, agricultural provenance tracking, renewable energy certificates, and AI-powered wallet infrastructure for financial inclusion.",
       },
     ],
+  },
+
+  terminal: {
+    title: "DCC Terminal",
+    subtitle: "Interact with the DecentralChain blockchain using natural language. Query blocks, balances, transactions, and network status in real-time.",
+    placeholder: "Ask about blocks, balances, transactions...",
+    querying: "Querying the blockchain...",
+    disclaimer: "Connected to DecentralChain mainnet. Data is live and real-time.",
   },
 
   footer: {

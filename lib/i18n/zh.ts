@@ -7,6 +7,7 @@ export const zh = {
     investors: "投资者",
     roadmap: "路线图",
     vision: "愿景",
+    terminal: "终端",
     getStarted: "开始使用",
   },
 
@@ -554,6 +555,14 @@ export const zh = {
           "当前重点领域包括AI增强DeFi协议、中美洲跨境汇款通道、碳信用代币化、农业溯源追踪、可再生能源证书和AI驱动钱包基础设施以促进金融包容性。",
       },
     ],
+  },
+
+  terminal: {
+    title: "DCC 终端",
+    subtitle: "使用自然语言与DecentralChain区块链互动。实时查询区块、余额、交易和网络状态。",
+    placeholder: "询问区块、余额、交易...",
+    querying: "正在查询区块链...",
+    disclaimer: "已连接到DecentralChain主网。数据实时更新。",
   },
 
   footer: {

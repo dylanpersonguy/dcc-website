@@ -23,6 +23,7 @@ export const NAV_LINKS = [
   { label: "Investors", href: "#investors" },
   { label: "Roadmap", href: "#roadmap" },
   { label: "Vision", href: "#vision" },
+  { label: "Terminal", href: "/terminal" },
 ] as const;
 
 export interface StatItem {

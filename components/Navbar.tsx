@@ -15,7 +15,7 @@ export default function Navbar() {
   const { t, locale, setLocale } = useI18n();
   const { theme, toggleTheme } = useTheme();
 
-  const navLabels = [t.nav.about, t.nav.features, t.nav.ecosystem, t.nav.investors, t.nav.roadmap, t.nav.vision];
+  const navLabels = [t.nav.about, t.nav.features, t.nav.ecosystem, t.nav.investors, t.nav.roadmap, t.nav.vision, t.nav.terminal];
 
   useEffect(() => {
     const onScroll = () => setIsScrolled(window.scrollY > 20);
@@ -45,7 +45,7 @@ export default function Navbar() {
       <div className="max-w-[1200px] mx-auto px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 lg:h-[72px]">
           {/* Logo */}
-          <a href="#" className="flex items-center gap-2.5 group">
+          <a href="/" className="flex items-center gap-2.5 group">
             <Image
               src="/logo.png"
               alt="DecentralChain"

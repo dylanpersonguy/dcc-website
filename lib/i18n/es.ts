@@ -7,6 +7,7 @@ export const es = {
     investors: "Inversores",
     roadmap: "Hoja de Ruta",
     vision: "Visión",
+    terminal: "Terminal",
     getStarted: "Comenzar",
   },
 
@@ -554,6 +555,14 @@ export const es = {
           "Las áreas de enfoque actuales incluyen protocolos DeFi mejorados por IA, corredores de remesas transfronterizas centroamericanas, tokenización de créditos de carbono, rastreo de procedencia agrícola, certificados de energía renovable e infraestructura de wallets impulsada por IA para la inclusión financiera.",
       },
     ],
+  },
+
+  terminal: {
+    title: "DCC Terminal",
+    subtitle: "Interactúa con la blockchain DecentralChain usando lenguaje natural. Consulta bloques, saldos, transacciones y estado de la red en tiempo real.",
+    placeholder: "Pregunta sobre bloques, saldos, transacciones...",
+    querying: "Consultando la blockchain...",
+    disclaimer: "Conectado a la mainnet de DecentralChain. Los datos son en vivo y en tiempo real.",
   },
 
   footer: {

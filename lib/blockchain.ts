@@ -61,3 +61,68 @@ export async function getBlockchainData(): Promise<BlockchainData> {
     connectedPeers: peers,
   };
 }
+
+// ——— Terminal-specific endpoints ———
+
+export interface AddressBalance {
+  address: string;
+  regular: number;
+  available: number;
+  effective: number;
+  generating: number;
+}
+
+export async function getAddressBalance(
+  address: string
+): Promise<AddressBalance> {
+  const data = await fetchJSON<Record<string, unknown>>(
+    `/addresses/balance/details/${encodeURIComponent(address)}`
+  );
+  return {
+    address: data.address as string,
+    regular: (data.regular as number) / 1e8,
+    available: (data.available as number) / 1e8,
+    effective: (data.effective as number) / 1e8,
+    generating: (data.generating as number) / 1e8,
+  };
+}
+
+export async function getBlockAtHeight(
+  height: number
+): Promise<BlockHeader> {
+  const raw = await fetchJSON<Record<string, unknown>>(
+    `/blocks/headers/at/${height}`
+  );
+  return {
+    height: raw.height as number,
+    timestamp: raw.timestamp as number,
+    transactionCount: raw.transactionCount as number,
+    generator: raw.generator as string,
+    id: raw.id as string,
+    blocksize: raw.blocksize as number,
+    totalFee: raw.totalFee as number,
+    version: raw.version as number,
+  };
+}
+
+export async function getTransactionById(
+  txId: string
+): Promise<Record<string, unknown>> {
+  return fetchJSON<Record<string, unknown>>(
+    `/transactions/info/${encodeURIComponent(txId)}`
+  );
+}
+
+export async function getNodeVersion(): Promise<string> {
+  const data = await fetchJSON<{ version: string }>("/node/version");
+  return data.version;
+}
+
+export async function getPeersList(): Promise<
+  Array<{ address: string; declaredAddress: string }>
+> {
+  const data = await fetchJSON<{
+    peers: Array<{ address: string; declaredAddress: string }>;
+  }>("/peers/connected");
+  return data.peers;
+}
