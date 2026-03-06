@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X, Sun, Moon, Globe } from "lucide-react";
 import { NAV_LINKS } from "@/lib/constants";
@@ -45,10 +46,13 @@ export default function Navbar() {
         <div className="flex items-center justify-between h-16 lg:h-[72px]">
           {/* Logo */}
           <a href="#" className="flex items-center gap-2.5 group">
-            <div className="relative w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-secondary flex items-center justify-center overflow-hidden">
-              <span className="relative z-10 text-background font-bold text-xs tracking-tight">DC</span>
-              <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-            </div>
+            <Image
+              src="/logo.png"
+              alt="DecentralChain"
+              width={32}
+              height={32}
+              className="rounded-lg"
+            />
             <span className="font-heading text-[17px] font-semibold text-foreground group-hover:text-primary transition-colors duration-300">
               {t.nav.brand}
             </span>

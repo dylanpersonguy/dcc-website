@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { NAV_LINKS } from "@/lib/constants";
 import { useI18n } from "@/lib/i18n";
 
@@ -29,9 +30,13 @@ export default function Footer() {
           {/* Brand */}
           <div className="lg:col-span-1">
             <div className="flex items-center gap-2.5 mb-4">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-secondary flex items-center justify-center">
-                <span className="text-background font-bold text-xs">DC</span>
-              </div>
+              <Image
+                src="/logo.png"
+                alt="DecentralChain"
+                width={32}
+                height={32}
+                className="rounded-lg"
+              />
               <span className="font-heading text-[17px] font-semibold text-foreground">
                 {t.footer.brand}
               </span>
