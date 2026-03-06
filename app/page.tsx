@@ -9,6 +9,7 @@ import WhyNow from "@/components/WhyNow";
 import WhyDecentralChain from "@/components/WhyDecentralChain";
 import Architecture from "@/components/Architecture";
 import Ecosystem from "@/components/Ecosystem";
+import DefiEcosystem from "@/components/DefiEcosystem";
 import EcosystemFlywheel from "@/components/EcosystemFlywheel";
 import InvestorThesis from "@/components/InvestorThesis";
 import SocialProof from "@/components/SocialProof";
@@ -38,6 +39,7 @@ export default function Home() {
         <WhyDecentralChain />
         <Architecture />
         <Ecosystem />
+        <DefiEcosystem />
         <EcosystemFlywheel />
         <InvestorThesis />
         <SocialProof />

@@ -210,6 +210,69 @@ export const zh = {
     },
   ],
 
+  defiEcosystem: {
+    badge: "DeFi与基础设施",
+    title: "为真正的DeFi而建",
+    subtitle:
+      "完整的去中心化金融堆栈 — 从零知识跨链桥和链上AMM到交易机器人和流动性安全 — 全部在DecentralChain上运行。",
+    products: [
+      {
+        title: "SOL ⇄ DCC 桥",
+        tag: "ZK验证",
+        description:
+          "Solana与DecentralChain之间的零知识跨链网关。在Solana上锁定SOL或SPL代币（USDC、USDT、BTC、ETH），在DCC上铸造包装等价物。100 SOL以下金额走委员会快速签名路径，大额转账走Groth16 ZK证明的去信任路径。",
+        features: [
+          "Groth16 ZK证明",
+          "SPL代币支持",
+          "速率限制",
+          "紧急暂停",
+          "CR Stable铸造",
+          "Merkle检查点",
+        ],
+      },
+      {
+        title: "DCC Swap",
+        tag: "AMM DEX",
+        description:
+          "在DecentralChain上原生构建的恒定乘积自动做市商。创建流动性池、添加和移除流动性、交换代币 — 全部由RIDE智能合约驱动，配备TypeScript SDK和React网页界面。",
+        features: [
+          "恒定乘积AMM",
+          "RIDE智能合约",
+          "TypeScript SDK",
+          "流动性池",
+          "React网页界面",
+        ],
+      },
+      {
+        title: "DCC交易机器人",
+        tag: "Telegram原生",
+        description:
+          "Trojan风格的Telegram交易机器人，支持即时交换、10层推荐佣金系统和内置SOL→DCC桥。包含链上索引器，实时轮询池状态以发现和执行交易。",
+        features: [
+          "Telegram界面",
+          "10层推荐",
+          "SOL→DCC桥",
+          "池索引器",
+          "1%机器人费用",
+        ],
+      },
+      {
+        title: "DCC流动性锁定器",
+        tag: "安全层",
+        description:
+          "去信任LP代币锁定平台，证明流动性无法被撤出。支持时间锁、归属计划、部分提取、锁定延期和所有权转让 — 配备DAO治理、保险池、NFT锁定凭证和自动风险评分。",
+        features: [
+          "归属计划",
+          "DAO治理",
+          "保险池",
+          "NFT凭证",
+          "风险评分",
+          "锁定延期",
+        ],
+      },
+    ],
+  },
+
   flywheel: {
     badge: "增长引擎",
     title: "飞轮效应",

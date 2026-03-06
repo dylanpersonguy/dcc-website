@@ -210,6 +210,69 @@ export const en = {
     },
   ],
 
+  defiEcosystem: {
+    badge: "DeFi & Infrastructure",
+    title: "Built for Real DeFi",
+    subtitle:
+      "A complete decentralized finance stack — from zero-knowledge cross-chain bridges and on-chain AMMs to trading bots and liquidity security — all live on DecentralChain.",
+    products: [
+      {
+        title: "SOL ⇄ DCC Bridge",
+        tag: "ZK Verified",
+        description:
+          "Zero-knowledge cross-chain gateway between Solana and DecentralChain. Lock SOL or SPL tokens (USDC, USDT, BTC, ETH) on Solana, mint wrapped equivalents on DCC. Fast committee-signed path for amounts under 100 SOL, trustless Groth16 ZK-proof path for larger transfers.",
+        features: [
+          "Groth16 ZK Proofs",
+          "SPL Token Support",
+          "Rate Limiting",
+          "Emergency Pause",
+          "CR Stable Minting",
+          "Merkle Checkpoints",
+        ],
+      },
+      {
+        title: "DCC Swap",
+        tag: "AMM DEX",
+        description:
+          "Constant-product automated market maker built natively on DecentralChain. Create pools, add and remove liquidity, and swap tokens — all powered by RIDE smart contracts with a TypeScript SDK and React web interface.",
+        features: [
+          "Constant-Product AMM",
+          "RIDE Smart Contracts",
+          "TypeScript SDK",
+          "Liquidity Pools",
+          "React Web UI",
+        ],
+      },
+      {
+        title: "DCC Trading Bot",
+        tag: "Telegram Native",
+        description:
+          "Trojan-style Telegram trading bot with instant swaps, a 10-layer referral commission system, and built-in SOL→DCC bridge. Includes an on-chain indexer that polls live pool state for real-time discovery and execution.",
+        features: [
+          "Telegram Interface",
+          "10-Layer Referrals",
+          "SOL→DCC Bridge",
+          "Pool Indexer",
+          "1% Bot Fee",
+        ],
+      },
+      {
+        title: "DCC Liquidity Locker",
+        tag: "Security Layer",
+        description:
+          "Trustless LP token locking platform that proves liquidity can't be pulled. Supports time-locks, vesting schedules, partial claims, lock extensions, and ownership transfers — with DAO governance, insurance pools, NFT lock certificates, and automated risk scoring.",
+        features: [
+          "Vesting Schedules",
+          "DAO Governance",
+          "Insurance Pools",
+          "NFT Certificates",
+          "Risk Scoring",
+          "Lock Extensions",
+        ],
+      },
+    ],
+  },
+
   flywheel: {
     badge: "Growth Engine",
     title: "The Flywheel Effect",

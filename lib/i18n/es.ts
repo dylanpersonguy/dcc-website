@@ -210,6 +210,69 @@ export const es = {
     },
   ],
 
+  defiEcosystem: {
+    badge: "DeFi e Infraestructura",
+    title: "Construido para DeFi Real",
+    subtitle:
+      "Un stack completo de finanzas descentralizadas — desde puentes cross-chain con pruebas de conocimiento cero y AMMs on-chain hasta bots de trading y seguridad de liquidez — todo en vivo en DecentralChain.",
+    products: [
+      {
+        title: "Puente SOL ⇄ DCC",
+        tag: "Verificado con ZK",
+        description:
+          "Gateway cross-chain con pruebas de conocimiento cero entre Solana y DecentralChain. Bloquea SOL o tokens SPL (USDC, USDT, BTC, ETH) en Solana y acuña equivalentes wrapped en DCC. Ruta rápida firmada por comité para montos menores a 100 SOL, ruta trustless con pruebas ZK Groth16 para transferencias mayores.",
+        features: [
+          "Pruebas ZK Groth16",
+          "Soporte SPL Tokens",
+          "Límites de Tasa",
+          "Pausa de Emergencia",
+          "Acuñación CR Stable",
+          "Checkpoints Merkle",
+        ],
+      },
+      {
+        title: "DCC Swap",
+        tag: "AMM DEX",
+        description:
+          "Market maker automatizado de producto constante construido nativamente en DecentralChain. Crea pools, agrega y retira liquidez, e intercambia tokens — todo impulsado por contratos inteligentes RIDE con SDK TypeScript e interfaz web React.",
+        features: [
+          "AMM Producto Constante",
+          "Contratos RIDE",
+          "SDK TypeScript",
+          "Pools de Liquidez",
+          "Interfaz Web React",
+        ],
+      },
+      {
+        title: "Bot de Trading DCC",
+        tag: "Nativo en Telegram",
+        description:
+          "Bot de trading estilo Trojan en Telegram con swaps instantáneos, sistema de comisiones de referidos de 10 niveles y puente SOL→DCC integrado. Incluye un indexador on-chain que consulta el estado de los pools en tiempo real.",
+        features: [
+          "Interfaz Telegram",
+          "Referidos 10 Niveles",
+          "Puente SOL→DCC",
+          "Indexador de Pools",
+          "1% Comisión Bot",
+        ],
+      },
+      {
+        title: "DCC Liquidity Locker",
+        tag: "Capa de Seguridad",
+        description:
+          "Plataforma trustless de bloqueo de tokens LP que demuestra que la liquidez no puede ser retirada. Soporta bloqueos temporales, calendarios de vesting, cobros parciales, extensiones y transferencias de propiedad — con gobernanza DAO, pools de seguro, certificados NFT y scoring de riesgo automatizado.",
+        features: [
+          "Calendarios Vesting",
+          "Gobernanza DAO",
+          "Pools de Seguro",
+          "Certificados NFT",
+          "Scoring de Riesgo",
+          "Extensiones de Bloqueo",
+        ],
+      },
+    ],
+  },
+
   flywheel: {
     badge: "Motor de Crecimiento",
     title: "Efecto Flywheel",
