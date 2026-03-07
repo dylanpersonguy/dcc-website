@@ -8,16 +8,16 @@ export const en = {
     roadmap: "Roadmap",
     vision: "Vision",
     terminal: "Dashboard",
-    getStarted: "Get Started",
+    getStarted: "Dashboard",
   },
 
   hero: {
-    badge: "AI-Powered · Eco-Friendly · Born in Central America",
-    headline: "The AI Blockchain Built for a",
-    headlineHighlight: "Sustainable Future",
+    badge: "AI Blockchain · Eco-Friendly · Born in Central America",
+    headline: "The Smartest Way to Experience",
+    headlineHighlight: "Decentralized Finance",
     subheadline:
-      "DecentralChain fuses artificial intelligence with eco-friendly consensus to deliver the first green, AI-native Layer 1 — built in Central America for the world.",
-    cta1: "Explore the Ecosystem",
+      "DecentralChain combines an advanced AI interface with eco-friendly blockchain infrastructure, purpose-built in Central America for the world. Trade, stake, create tokens, manage liquidity, and explore an entire DeFi ecosystem that actually makes sense.",
+    cta1: "Explore Ecosystem",
     cta2: "View Investor Thesis",
     mainnetLive: "Mainnet Live",
     block: "Block",
@@ -35,64 +35,64 @@ export const en = {
 
   trustItems: {
     labels: [
-      "AI-Native Protocol",
+      "AI-Powered Interface",
       "Carbon-Negative Network",
-      "Central American Origin",
-      "Open Developer Stack",
-      "Audited & Verified",
+      "Born in Central America",
+      "Full DeFi Suite",
+      "Live on Mainnet",
     ],
   },
 
   about: {
     badge: "About DecentralChain",
-    title: "AI Intelligence. Green Infrastructure. Regional Roots.",
-    p1: "DecentralChain is the first Layer 1 blockchain to embed artificial intelligence directly into its protocol layer — from AI-optimized transaction routing and smart contract auditing to on-chain machine learning inference. Built in Central America by Blockchain Costa Rica, the network represents a new model: world-class technology created in an emerging market, for every market.",
-    p2: "Unlike proof-of-work chains that consume the energy of small nations, DecentralChain uses Leased Proof of Stake (LPoS) — a consensus mechanism that is thousands of times more energy-efficient than Bitcoin or Ethereum's original design. The result is an eco-friendly blockchain that delivers institutional-grade performance without environmental compromise.",
+    title: "Three Pillars. One Unstoppable Protocol.",
+    p1: "DecentralChain is the first blockchain to put an advanced AI interface at the center of the user experience. Instead of wrestling with complicated DeFi dashboards, users interact with the entire chain through a natural language AI Terminal that understands what you want and executes it on your behalf. That is what makes this an AI blockchain. Not AI bolted onto a protocol, but intelligence woven into the way you actually use it.",
+    p2: "Running on Leased Proof of Stake consensus that is thousands of times more energy efficient than traditional mining, DecentralChain delivers institutional grade performance without the environmental cost. And it all started in Central America, built by Blockchain Costa Rica to prove that world-class technology can come from anywhere and serve everyone.",
     highlights: [
       {
-        title: "AI at the Protocol Layer",
-        desc: "On-chain AI inference, intelligent transaction routing, automated smart contract auditing, and ML-powered fraud detection — built into the chain, not bolted on.",
+        title: "AI-Powered Experience",
+        desc: "The AI Terminal lets you swap, stake, create tokens, manage pools, and explore the blockchain using plain English. No complex UIs, no learning curve. Just type what you need and it happens.",
       },
       {
-        title: "Born in Central America",
-        desc: "Designed and built by Blockchain Costa Rica. A world-class protocol proving that transformative technology can emerge from anywhere — and serve everywhere.",
+        title: "Eco-Friendly by Design",
+        desc: "Leased Proof of Stake uses a fraction of the energy consumed by proof of work chains. Combined with carbon offset partnerships, DecentralChain operates as a certified carbon-negative network.",
       },
       {
-        title: "Carbon-Negative by Design",
-        desc: "LPoS consensus uses a fraction of the energy of proof-of-work chains. Combined with carbon offset partnerships, DecentralChain operates as a carbon-negative network.",
+        title: "Central American Roots",
+        desc: "Designed and built by Blockchain Costa Rica. A world-class protocol proving that transformative technology can emerge from any region and serve every market on the planet.",
       },
       {
-        title: "Ecosystem-Native Growth",
-        desc: "Funded grants, developer SDKs, AI toolkits, and structured go-to-market support — designed to bring builders in from Central America and beyond.",
+        title: "Complete DeFi Stack",
+        desc: "From a constant-product AMM and cross-chain bridge to LP token locking, a Telegram trading bot, staking, and token issuance. Everything you need for decentralized finance lives natively on-chain.",
       },
     ],
   },
 
   whyNow: {
     badge: "Market Timing",
-    title: "Why Now",
+    title: "Why DecentralChain. Why Now.",
     subtitle:
-      "Four converging macro trends create a once-in-a-cycle window for AI-powered, sustainable blockchain infrastructure.",
+      "Four massive shifts are happening at once, and DecentralChain sits right at the intersection of all of them.",
     reasons: [
       {
-        title: "AI & Blockchain Convergence",
+        title: "AI Is Reshaping Every Interface",
         description:
-          "Artificial intelligence and blockchain are merging into a single stack. Protocols with native AI capabilities — on-chain inference, intelligent routing, automated auditing — will capture the next wave of developer and enterprise adoption.",
+          "The way humans interact with technology is changing. Natural language interfaces are replacing dashboards and forms across every industry. DecentralChain is the first blockchain to put this shift at the center of the experience, making DeFi as intuitive as sending a text message.",
       },
       {
-        title: "The Green Blockchain Mandate",
+        title: "Sustainability Is No Longer Optional",
         description:
-          "Regulators, institutions, and consumers increasingly demand sustainable technology. Energy-efficient chains with verifiable green credentials are becoming a prerequisite, not a differentiator.",
+          "Regulators, institutions, and users are demanding environmentally responsible technology. Energy-hungry proof of work chains are falling out of favor. DecentralChain's carbon-negative Leased Proof of Stake consensus makes it the natural choice for a world that is paying attention to its footprint.",
       },
       {
-        title: "Emerging Markets Going Digital-First",
+        title: "Emerging Markets Are Going Digital First",
         description:
-          "Central America and Latin America are leapfrogging legacy financial infrastructure. El Salvador's Bitcoin adoption, Costa Rica's tech ecosystem, and regional fintech growth create fertile ground for blockchain-native solutions.",
+          "Central America and Latin America are leapfrogging traditional financial infrastructure entirely. El Salvador made Bitcoin legal tender. Costa Rica's tech ecosystem is thriving. The region is ready for a blockchain built specifically for its needs, and DecentralChain is exactly that.",
       },
       {
-        title: "Performance Gap in L1s",
+        title: "DeFi Needs a Better User Experience",
         description:
-          "Existing Layer 1s lack AI integration and carry massive carbon footprints. DecentralChain fills both gaps — delivering AI-native intelligence on an eco-friendly foundation.",
+          "Billions of dollars sit in DeFi protocols, yet 95% of the world has never touched a DEX. The problem is not demand. The problem is complexity. DecentralChain solves this with an AI Terminal that collapses the learning curve to zero and makes every DeFi operation as simple as typing a sentence.",
       },
     ],
   },
@@ -101,113 +101,113 @@ export const en = {
     badge: "Why DecentralChain",
     title: "Three Pillars. One Protocol.",
     subtitle:
-      "AI intelligence, environmental sustainability, and Central American innovation — engineered together from day one into a single, cohesive blockchain.",
+      "AI-powered user experience, eco-friendly infrastructure, and Central American innovation. Built from day one as a single, coherent blockchain designed to onboard the next generation of DeFi users.",
   },
 
   features: [
     {
-      title: "AI-Native Intelligence",
+      title: "AI Terminal Interface",
       description:
-        "On-chain machine learning inference, AI-optimized transaction routing, and automated smart contract auditing — artificial intelligence embedded at the protocol layer.",
+        "The entire blockchain at your fingertips through natural language. Swap tokens, manage liquidity, create pools, check balances, explore blocks, and automate strategies by simply typing what you want. This is the interface that makes DecentralChain an AI blockchain.",
     },
     {
-      title: "Eco-Friendly Consensus",
+      title: "DCC Swap AMM",
       description:
-        "Leased Proof of Stake (LPoS) is thousands of times more energy efficient than proof-of-work. Combined with carbon offset programs, the network operates carbon-negative.",
+        "A full constant-product automated market maker built natively on-chain with RIDE smart contracts. Create liquidity pools, provide liquidity, and execute token swaps with tight spreads and real-time pricing across every trading pair.",
     },
     {
-      title: "Built in Central America",
+      title: "Cross-Chain Bridge",
       description:
-        "Designed by Blockchain Costa Rica and purpose-built for emerging markets — with cross-border payments, multilingual support, and regional fintech integrations from day one.",
+        "Move assets seamlessly between Solana and DecentralChain through a ZK-verified bridge. Lock SOL or SPL tokens on one side, mint wrapped equivalents on the other. Fast path for smaller amounts, trustless Groth16 proofs for larger transfers.",
     },
     {
-      title: "AI-Powered Developer Tools",
+      title: "Staking & Leasing",
       description:
-        "AI code assistants, automated testing, intelligent contract optimization, and natural-language smart contract generation — making blockchain development accessible to everyone.",
+        "Secure the network and earn rewards by staking DCC through the Leased Proof of Stake consensus mechanism. Delegate to validators, track rewards, and manage your staking positions with full transparency and control.",
     },
     {
-      title: "Sustainable Ecosystem",
+      title: "Token Issuance Platform",
       description:
-        "Green DeFi protocols, carbon credit tokenization, renewable energy tracking, and ESG-compliant infrastructure — an entire ecosystem built on sustainable rails.",
+        "Create, mint, burn, and manage custom tokens directly on DecentralChain. Launch a new asset in seconds, set supply parameters, and distribute tokens without writing a single line of smart contract code.",
     },
     {
-      title: "Institutional-Grade Security",
+      title: "RIDE Smart Contracts",
       description:
-        "AI-enhanced threat detection, formally verified consensus, independent third-party audits, and hardened cryptographic primitives — built for the trust requirements of serious capital.",
+        "Build powerful decentralized applications using RIDE, DecentralChain's purpose-built smart contract language. Designed for safety and predictability with formal verification capabilities and straightforward syntax that reduces bugs before they happen.",
     },
   ],
 
   architecture: {
     badge: "Infrastructure",
-    title: "AI-Enhanced Protocol Architecture",
+    title: "Protocol Architecture",
     subtitle:
-      "A green, intelligent stack — from AI-powered consensus to eco-friendly data availability — engineered for performance and sustainability.",
+      "A high-performance, energy-efficient technology stack designed from the ground up for speed, security, and sustainability.",
     layers: [
       {
-        label: "AI & Application Layer",
-        description: "On-Chain ML Inference · AI DApps · Intelligent Routing",
+        label: "AI Interface Layer",
+        description: "Natural Language Processing · AI Terminal · Intelligent Command Routing",
+      },
+      {
+        label: "DeFi Application Layer",
+        description:
+          "AMM DEX · Token Swaps · Liquidity Pools · Staking · Bridge",
       },
       {
         label: "Smart Contract Engine",
         description:
-          "AI-Audited Contracts · Ride Language · Formal Verification",
+          "RIDE Language · Formal Verification · Predictable Execution",
       },
       {
         label: "Green Consensus Layer",
         description:
-          "Leased Proof of Stake · Sub-Second Finality · Carbon-Negative",
-      },
-      {
-        label: "Network & Data Layer",
-        description:
-          "Energy-Efficient Propagation · Sharded State · P2P Gossip",
+          "Leased Proof of Stake · Sub-second Finality · Carbon Negative",
       },
     ],
-    finality: "End-to-End Finality: <400ms · Carbon-Negative",
+    finality: "End-to-end finality: <400ms · Carbon negative",
   },
 
   ecosystemSection: {
     badge: "Ecosystem",
-    title: "AI-Powered. Eco-Friendly. Regional Impact.",
+    title: "A Complete DeFi Ecosystem. Powered by Intelligence.",
     subtitle:
-      "A growing network of AI-enhanced, sustainable applications — from green DeFi and cross-border payments to carbon credit markets — built on the blockchain of Central America.",
+      "From automated market makers and cross-chain bridges to AI-powered trading and liquidity security, everything you need for decentralized finance lives on DecentralChain.",
   },
 
   ecosystemModules: [
     {
-      title: "AI-Enhanced DeFi",
+      title: "AI Terminal",
       description:
-        "AI-optimized lending, trading, and yield strategies — intelligent protocols that learn and adapt on a green, high-throughput foundation.",
-    },
-    {
-      title: "Cross-Border Payments",
-      description:
-        "Stablecoin-native rails for remittances, merchant payments, and B2B settlement across Central America and beyond — fast, cheap, and eco-friendly.",
-    },
-    {
-      title: "Carbon Credit Markets",
-      description:
-        "Tokenized carbon credits, renewable energy certificates, and ESG assets — transparent, verifiable green finance on-chain.",
-    },
-    {
-      title: "AI Wallet Infrastructure",
-      description:
-        "AI-assisted portfolio management, intelligent spending controls, and natural-language transaction interfaces — making crypto accessible to everyone.",
+        "The flagship interface for the entire ecosystem. Trade, explore, stake, create tokens, and manage your portfolio using natural language. No complex dashboards, no learning curve. Just tell the terminal what you want.",
     },
     {
       title: "Decentralized Exchange",
       description:
-        "AI-powered order matching, deep liquidity aggregation, and energy-efficient trading — built for both retail users and professional environments.",
+        "A full-featured AMM powered by RIDE smart contracts. Constant-product pools, real-time pricing, tight spreads, and liquidity you can trust. Built natively on-chain for maximum speed and security.",
     },
     {
-      title: "Regional Enterprise Solutions",
+      title: "Cross-Chain Connectivity",
       description:
-        "Supply chain tracking, agricultural provenance, identity verification, and government integrations tailored for Central American markets.",
+        "Bring assets from Solana and other chains into the DecentralChain ecosystem through zero-knowledge verified bridges. SPL token support, rate limiting, and emergency pause capabilities keep everything secure.",
     },
     {
-      title: "Green Developer Platform",
+      title: "Liquidity Infrastructure",
       description:
-        "AI code assistants, carbon-aware smart contract tooling, explorers, indexers, and API gateways — everything to build sustainably, fast.",
+        "Create pools, add and remove liquidity, and lock LP tokens with trustless vesting schedules. The liquidity layer is the backbone of every trade, and DecentralChain makes managing it simple.",
+    },
+    {
+      title: "Token Platform",
+      description:
+        "Issue new tokens, manage supply with mint and burn operations, and distribute assets to your community. The entire token lifecycle is handled on-chain with no external dependencies.",
+    },
+    {
+      title: "Staking Network",
+      description:
+        "Secure the network while earning rewards through Leased Proof of Stake. Delegate to validators, track performance, and compound returns while keeping DecentralChain fast, green, and decentralized.",
+    },
+    {
+      title: "Developer Tools",
+      description:
+        "RIDE smart contracts, TypeScript SDKs, REST APIs, block explorers, and comprehensive documentation. Everything builders need to create the next generation of decentralized applications on an eco-friendly chain.",
     },
   ],
 
@@ -276,59 +276,59 @@ export const en = {
 
   flywheel: {
     badge: "Growth Engine",
-    title: "The Flywheel Effect",
+    title: "The DecentralChain Flywheel",
     subtitle:
-      "A self-reinforcing cycle where AI intelligence, green infrastructure, and regional adoption compound to create unstoppable momentum.",
+      "AI simplifies the experience, simplicity drives adoption, adoption deepens liquidity, and deeper liquidity makes the entire ecosystem stronger. Every new user accelerates the cycle.",
     stages: [
       {
-        title: "AI Attracts Builders",
+        title: "AI Makes DeFi Simple",
         description:
-          "AI-native tooling and on-chain intelligence draw developers who want to build smarter, not just faster.",
+          "The AI Terminal removes every barrier between users and the blockchain. New participants go from zero to trading in seconds, no tutorials required.",
       },
       {
-        title: "Green Apps Launch",
+        title: "Simplicity Drives Adoption",
         description:
-          "Sustainable DeFi, carbon markets, and eco-friendly applications go live on the network.",
+          "When DeFi is as easy as typing a sentence, more people show up. More traders, more liquidity providers, more developers building on the platform.",
       },
       {
-        title: "Region Onboards",
+        title: "Adoption Deepens Liquidity",
         description:
-          "Central American users, businesses, and institutions adopt blockchain-native financial services.",
+          "More users mean deeper AMM pools, tighter spreads, and better swap execution across every trading pair. The ecosystem becomes more efficient with every transaction.",
       },
       {
-        title: "Network Compounds",
+        title: "Liquidity Attracts More Value",
         description:
-          "Transaction volume grows, AI models improve, carbon offsets scale, and the ecosystem becomes self-sustaining.",
+          "Deep liquidity and a green, intelligent infrastructure attract institutional interest, new token launches, and partnerships that compound the entire network's value.",
       },
     ],
-    loop: "AI · Sustainability · Growth",
+    loop: "Intelligence · Simplicity · Growth",
   },
 
   investorThesis: {
     badge: "Investor Thesis",
     title: "The Case for DecentralChain",
     subtitle:
-      "The only Layer 1 that combines AI intelligence, carbon-negative operations, and Central American market positioning — three structural advantages converging into one asset.",
+      "Three structural advantages converging into a single asset: an AI-powered user experience that collapses DeFi complexity, carbon-negative infrastructure that satisfies ESG mandates, and first-mover positioning in a 50 million person region going digital.",
     items: [
       {
-        title: "AI-Native Moat",
+        title: "AI as the Onboarding Layer",
         description:
-          "On-chain AI capabilities create a technical moat that pure-infrastructure chains cannot replicate. As AI models improve with network usage, the advantage compounds exponentially.",
+          "DecentralChain is the first blockchain where the primary interface is an AI Terminal. This is not a chatbot bolted onto a DEX. It is the native way users interact with everything on the chain, from swaps and staking to token creation and governance. That changes the adoption math entirely.",
       },
       {
         title: "ESG-Ready Infrastructure",
         description:
-          "Institutional capital increasingly requires ESG compliance. DecentralChain's carbon-negative consensus and green ecosystem make it the natural choice for sustainability-mandated funds.",
+          "Institutional capital increasingly requires environmental compliance. DecentralChain's Leased Proof of Stake consensus is thousands of times more efficient than proof of work, and combined with verified carbon offset partnerships, the network operates as certified carbon negative. For sustainability-mandated funds, it is one of the few credible options.",
       },
       {
         title: "Central American First-Mover",
         description:
-          "A 50M+ population region going digital-first, with El Salvador setting global precedent. DecentralChain is the home-grown protocol positioned to capture an entire region's blockchain adoption.",
+          "A region of over 50 million people is leapfrogging straight to digital finance. El Salvador set the global precedent with Bitcoin. Costa Rica is building one of Latin America's strongest tech ecosystems. DecentralChain is the homegrown protocol positioned to capture an entire region's blockchain adoption.",
       },
       {
-        title: "Compounding Network Effects",
+        title: "Full-Stack Ecosystem Ownership",
         description:
-          "More AI usage improves on-chain models. More users drive transaction volume. More volume funds carbon offsets. Three growth loops reinforcing each other simultaneously.",
+          "AI Terminal, AMM, cross-chain bridge, staking, token issuance, liquidity locker, trading bot, and automations engine. All built natively on DecentralChain with zero third-party dependencies. This level of vertical integration means tighter UX, faster iteration, and a compounding network effect that is extremely difficult to replicate.",
       },
     ],
   },
@@ -337,7 +337,7 @@ export const en = {
     badge: "Backed By",
     title: "Trusted by Builders & Investors",
     subtitle:
-      "DecentralChain is supported by blockchain pioneers, sustainability-focused funds, and Central American innovation leaders.",
+      "DecentralChain is backed by blockchain pioneers, sustainability-focused funds, and Central American innovation leaders who believe in the convergence of AI, green infrastructure, and emerging market adoption.",
     logos: [
       "Blockchain CR",
       "Green Ledger Fund",
@@ -357,12 +357,12 @@ export const en = {
     badge: "Network Value",
     title: "Value Accrues at Every Layer",
     subtitle:
-      "AI intelligence, green consensus, and regional adoption generate compounding value — each layer of the stack strengthens everything below it.",
+      "AI intelligence, green consensus, and regional adoption compound value at every layer of the technology stack, with each layer strengthening everything beneath it.",
     layers: [
       {
         label: "Global Reach & Green Governance",
         description:
-          "Carbon-negative operations, decentralized governance, regional validators across Central America",
+          "Carbon-negative operations, decentralized governance, worldwide validator network",
       },
       {
         label: "Regional Commerce & Adoption",
@@ -370,90 +370,90 @@ export const en = {
           "Cross-border remittances, merchant networks, Central American enterprise deployments",
       },
       {
-        label: "AI-Enhanced Application Layer",
-        description: "Intelligent DeFi, carbon markets, AI wallets, green exchanges",
+        label: "DeFi & AI Application Layer",
+        description: "AI Terminal, AMM, staking, token platform, liquidity pools, bridge, automations",
       },
       {
-        label: "Developer & AI Community",
-        description: "AI toolkits, grants, hackathons, open-source ML models",
+        label: "Developer & Builder Community",
+        description: "RIDE smart contracts, open SDKs, grants, hackathons, TypeScript tooling",
       },
       {
-        label: "Green Core Infrastructure",
-        description: "LPoS consensus, energy-efficient execution, carbon-aware data availability",
+        label: "Core Green Infrastructure",
+        description: "LPoS consensus, energy-efficient execution, on-chain AMM, ZK bridge",
       },
     ],
-    indicator: "AI intelligence + sustainability + regional adoption",
+    indicator: "AI Intelligence + Sustainability + Regional Adoption",
   },
 
   roadmap: {
     badge: "Roadmap",
     title: "Execution Timeline",
     subtitle:
-      "From AI protocol foundation through green mainnet launch to Central American commercial adoption — a disciplined, phased approach.",
+      "From AI protocol foundations through green mainnet launch to Central American commercial adoption. A disciplined phased approach to building the most accessible blockchain on the planet.",
     phases: [
       {
         phase: "Phase 1",
         title: "Foundation",
         period: "Q1 — Q2 2025",
         items: [
-          "Core AI-enhanced protocol architecture finalized",
-          "LPoS green consensus engine benchmarked",
-          "Closed alpha testnet launched",
+          "Core blockchain mainnet live with LPoS consensus",
+          "Initial RIDE smart contract engine deployed",
+          "Developer SDK and comprehensive API documentation",
           "First carbon footprint audit completed",
         ],
       },
       {
         phase: "Phase 2",
-        title: "Green Mainnet",
+        title: "DeFi Core",
         period: "Q3 — Q4 2025",
         items: [
-          "Carbon-negative mainnet live with regional validators",
-          "AI-powered developer SDK & CLI tools shipped",
-          "Cross-chain bridge infrastructure deployed",
-          "Central American ecosystem partnerships signed",
+          "On-chain AMM deployment with DCC Swap",
+          "SOL ⇄ DCC cross-chain bridge launched",
+          "AI Terminal v1 with natural language trading",
+          "Telegram trading bot in beta",
         ],
       },
       {
         phase: "Phase 3",
-        title: "AI & Builder Expansion",
+        title: "Ecosystem Growth",
         period: "Q1 — Q2 2026",
         items: [
-          "On-chain AI inference engine launched",
-          "Central American hackathon series initiated",
-          "AI smart contract audit tools released",
-          "Carbon credit tokenization framework live",
+          "Liquidity locker and LP security tools live",
+          "Token issuance platform in production",
+          "Staking dashboard and reward tracking",
+          "Central American merchant payment pilots",
         ],
       },
       {
         phase: "Phase 4",
-        title: "Regional Acceleration",
+        title: "AI & Power Features",
         period: "Q3 — Q4 2026",
         items: [
-          "AI-enhanced DeFi protocols deployed to mainnet",
-          "Cross-border payment integrations with LATAM merchants",
-          "Green institutional custody & compliance pilots",
-          "Renewable energy tracking on-chain",
+          "Advanced terminal with limit orders, DCA, and automations",
+          "Cross-chain expansion beyond Solana",
+          "RIDE developer tools, grants, and hackathons",
+          "Carbon credit marketplace framework",
         ],
       },
       {
         phase: "Phase 5",
-        title: "Commercial Adoption",
+        title: "Regional Adoption",
         period: "Q1 — Q2 2027",
         items: [
-          "Live merchant payment network across Central America",
-          "Carbon credit marketplace operational",
-          "AI-powered enterprise deployment framework",
-          "Government partnership pilots in Costa Rica",
+          "Central American merchant payment network live",
+          "Enterprise deployment framework and integrations",
+          "Multi-language AI Terminal support (ES, ZH, PT)",
+          "Institutional custody and compliance pilot",
         ],
       },
       {
         phase: "Phase 6",
-        title: "Global Green Scale",
+        title: "Global Scale",
         period: "Q3 2027+",
         items: [
-          "Multi-region AI validator expansion",
-          "Full decentralized green governance",
-          "AI Layer 2 rollup ecosystem support",
+          "Multi-region validator expansion",
+          "Fully decentralized green governance",
+          "AI-powered trade analytics and insights",
           "Global sustainability partnership network",
         ],
       },
@@ -463,14 +463,14 @@ export const en = {
   vision: {
     badge: "The Long View",
     headline:
-      "The future of finance will run on infrastructure that is intelligent, sustainable, and",
+      "The future of finance runs on infrastructure that is intelligent, sustainable, and",
     headlineHighlight: "built where it matters most",
-    body: "DecentralChain exists to prove that the most powerful blockchain technology doesn't have to come from Silicon Valley — and doesn't have to cost the planet. AI-native intelligence, carbon-negative operations, and deep Central American roots create something no other chain can replicate: a protocol that is as smart as it is green, built in an emerging market to serve every market.",
+    body: "DecentralChain exists to prove that the most powerful blockchain technology does not have to come from Silicon Valley, and it does not have to cost the planet. An AI-powered interface that makes DeFi as easy as typing a sentence. Carbon-negative consensus that sets the standard for sustainable infrastructure. Deep roots in Central America that connect an emerging region to global markets. This is what happens when you build technology that puts people first.",
     pillars: [
-      { label: "Intelligent", desc: "AI-native at every layer" },
-      { label: "Sustainable", desc: "Carbon-negative by design" },
+      { label: "Intelligent", desc: "AI-powered interface for every user" },
+      { label: "Sustainable", desc: "Carbon negative by design" },
       { label: "Regional", desc: "Born in Central America" },
-      { label: "Global", desc: "Built for every market" },
+      { label: "Complete", desc: "Full DeFi stack on one chain" },
     ],
   },
 
@@ -478,44 +478,44 @@ export const en = {
     badge: "Build & Explore",
     title: "Your Gateway to the Network",
     subtitle:
-      "Everything you need to trade, explore, build, and understand DecentralChain — the AI-powered, eco-friendly blockchain of Central America.",
+      "Everything you need to trade, explore, build, and learn about DecentralChain. The AI-powered, eco-friendly blockchain from Central America.",
     cards: [
       {
-        title: "DEX & Wallet",
+        title: "AI Terminal",
         description:
-          "Trade assets and manage your portfolio on DecentralChain's AI-enhanced decentralized exchange.",
-        cta: "Launch Exchange",
+          "Launch the AI Terminal and experience decentralized finance through natural language. Swap, stake, create tokens, and manage your entire portfolio.",
+        cta: "Launch Terminal",
       },
       {
         title: "Block Explorer",
         description:
-          "Browse transactions, blocks, addresses, and network activity — including real-time carbon metrics.",
+          "Browse transactions, blocks, addresses, and network activity. See every operation happening on the chain in real time.",
         cta: "View Explorer",
       },
       {
         title: "GitHub",
         description:
-          "Dive into the source. Review the AI modules, contribute to the codebase, and build on green, open infrastructure.",
+          "Explore the source code. Review AMM contracts, bridge infrastructure, smart contract libraries, and the full open-source stack.",
         cta: "View Repositories",
       },
       {
         title: "Node API",
         description:
-          "Full Swagger documentation for the DecentralChain mainnet node REST API — query blocks, AI endpoints, and more.",
+          "Full Swagger documentation for the DecentralChain mainnet node REST API covering blocks, assets, transactions, and more.",
         cta: "Open API Docs",
       },
     ],
     videoTitle: "How DecentralChain Works",
     videoSubtitle:
-      "A concise overview of the AI-powered protocol, green consensus mechanism, and Central American ecosystem vision.",
+      "A concise overview of the AI-powered interface, green consensus mechanism, DeFi ecosystem, and Central American vision.",
     watchVideo: "Watch Explainer",
   },
 
   cta: {
-    headline: "Intelligent. Sustainable. Live Now.",
+    headline: "Intelligent. Sustainable. Ready.",
     subtitle:
-      "Whether you're building AI applications, deploying green infrastructure, or entering the Central American market — DecentralChain is ready.",
-    cta1: "Start Building Now",
+      "Whether you are trading tokens, building DeFi applications, deploying green infrastructure, or looking for the next breakthrough L1, DecentralChain is live and waiting.",
+    cta1: "Launch AI Terminal",
     cta2: "Read Documentation",
   },
 
@@ -523,37 +523,37 @@ export const en = {
     badge: "FAQ",
     title: "Frequently Asked Questions",
     subtitle:
-      "Key questions about DecentralChain's AI capabilities, sustainability, and Central American roots.",
+      "Key questions about DecentralChain's AI-powered interface, eco-friendly infrastructure, DeFi capabilities, and Central American roots.",
     items: [
       {
-        question: "What makes DecentralChain an 'AI Blockchain'?",
+        question: "What makes DecentralChain an AI blockchain?",
         answer:
-          "DecentralChain embeds artificial intelligence directly into the protocol layer. This includes on-chain ML inference for smart contracts, AI-optimized transaction routing, automated smart contract auditing, and AI-powered fraud detection — making the chain itself intelligent, not just the applications on top of it.",
+          "DecentralChain puts an advanced AI Terminal at the center of the user experience. Instead of navigating complex DeFi interfaces, users interact with the entire blockchain through natural language. Type what you want, and the AI handles token resolution, decimal calculations, transaction signing, and execution. It is AI at the interface layer, making every operation on the chain intelligent and accessible.",
       },
       {
-        question: "How is DecentralChain eco-friendly?",
+        question: "How is the network eco-friendly?",
         answer:
-          "DecentralChain uses Leased Proof of Stake (LPoS), which is thousands of times more energy-efficient than proof-of-work mining. Combined with verified carbon offset partnerships and energy-efficient node infrastructure, the network operates as a certified carbon-negative blockchain.",
+          "DecentralChain runs on Leased Proof of Stake, a consensus mechanism that is thousands of times more energy efficient than proof of work mining. Combined with verified carbon offset partnerships and efficient node infrastructure, the network operates as a certified carbon-negative blockchain. You can trade, stake, and build on DecentralChain knowing your activity is not contributing to environmental harm.",
       },
       {
-        question: "What does 'The Blockchain of Central America' mean?",
+        question: "What DeFi features are available?",
         answer:
-          "DecentralChain was designed and built by Blockchain Costa Rica — making it the first major Layer 1 protocol to originate from Central America. The network is purpose-built for the region's needs: cross-border remittances, financial inclusion, agricultural supply chains, and digital identity — while serving global markets.",
+          "DecentralChain offers a complete DeFi stack including a constant-product AMM for token swaps, liquidity pools you can create and manage, a ZK-verified cross-chain bridge to Solana, native staking through Leased Proof of Stake, a token issuance platform for creating new assets, a Telegram trading bot, an LP token locker for proving liquidity security, and the AI Terminal that ties it all together through natural language.",
       },
       {
-        question: "What does the investment opportunity look like?",
+        question: "Why Central America?",
         answer:
-          "DecentralChain sits at the intersection of three massive trends: AI integration, ESG-mandated investing, and emerging market digitization. As the only L1 combining all three, it offers a unique structural position that no competitors currently occupy.",
+          "DecentralChain was designed and built by Blockchain Costa Rica, making it the first major Layer 1 protocol to come from Central America. The region of over 50 million people is going digital-first, with El Salvador leading the way in Bitcoin adoption and Costa Rica building a thriving tech ecosystem. DecentralChain is purpose-built for this market while serving the entire world.",
       },
       {
-        question: "How do teams start building on DecentralChain?",
+        question: "How do smart contracts work on DecentralChain?",
         answer:
-          "The developer portal provides AI-assisted SDKs, smart contract tooling with automated auditing, funded testnets, and comprehensive API documentation. Grant programs focused on AI, sustainability, and Central American innovation are available to help teams launch.",
+          "DecentralChain uses RIDE, a purpose-built smart contract language designed for safety and predictability. RIDE supports formal verification, has no unbounded loops that could cause unexpected gas costs, and compiles to efficient bytecode. The entire AMM, bridge, and liquidity locker are powered by RIDE contracts, and developers can build their own dApps using TypeScript SDKs and comprehensive documentation.",
       },
       {
-        question: "What real-world use cases are live or in development?",
+        question: "How do I get started?",
         answer:
-          "Current ecosystem focus areas include AI-enhanced DeFi protocols, cross-border remittance rails for Central America, carbon credit tokenization, agricultural provenance tracking, renewable energy certificates, and AI-powered wallet infrastructure for financial inclusion.",
+          "The fastest way is to open the AI Terminal from the dashboard. Connect your wallet and start typing commands in plain English. Try 'help' to see everything you can do, or jump right in with something like 'show my portfolio' or 'swap 10 DCC to USDT'. No tutorials needed, no multi-step processes. Just type what you need and the AI handles the rest.",
       },
     ],
   },
@@ -568,7 +568,7 @@ export const en = {
 
   footer: {
     brand: "DecentralChain",
-    tagline: "The AI-powered, eco-friendly blockchain of Central America.",
+    tagline: "AI-powered. Eco-friendly. Built in Central America.",
     navigation: "Navigation",
     resources: "Resources",
     community: "Community",

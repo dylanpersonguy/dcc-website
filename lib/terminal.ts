@@ -157,6 +157,7 @@ function extractAssetId(input: string): string | null {
 /** Words to ignore when extracting token names from swap commands */
 const SWAP_STOP_WORDS = new Set([
   "swap", "trade", "exchange", "execute", "confirm", "send", "do", "perform",
+  "buy", "sell", "purchase",
   "quote", "estimate", "preview", "calculate", "price",
   "how", "much", "the", "a", "an", "of", "with", "from", "my",
   "tokens", "token", "coins", "coin",
@@ -960,18 +961,21 @@ function matchCommand(input: string, wallet?: WalletInfo, options?: TerminalOpti
     }
   }
 
-  // Swap quote — "swap quote 100 DCC to USDT", "quote swap 50 USDT for DCC", "swap 1 MyToken for Raybean"
+  // Swap — "swap 1 DCC to USDT", "trade 50 USDC for DCC", "buy 10 DCC with USDT", "swap quote 100 DCC to USDT"
   if (
-    (/\b(swap|trade|exchange)\b/.test(lower) && /\b(quote|estimate|preview|how\s*much|price|calculate)\b/.test(lower)) ||
-    (/\b(swap|trade|exchange)\b/.test(lower) && /\d+(\.\d+)?/.test(lower) && /\b(to|for|into)\b/.test(lower))
+    (/\b(swap|trade|exchange|buy)\b/.test(lower) && /\b(quote|estimate|preview|how\s*much|price|calculate)\b/.test(lower)) ||
+    (/\b(swap|trade|exchange|buy)\b/.test(lower) && /\d+(\.\d+)?/.test(lower) && /\b(to|for|into|with)\b/.test(lower))
   ) {
     const amount = extractAmount(input);
     const swapTokens = extractSwapTokens(input);
+    // Direct swap intent: user said swap/trade/buy WITHOUT explicitly asking for just a quote
+    const isQuoteOnly = /\b(quote|estimate|preview|how\s*much|price|calculate)\b/.test(lower);
+    const shouldAutoExecute = !isQuoteOnly || options?.autoSign;
     return {
       handler: async () => {
         if (!amount || !swapTokens) {
           return {
-            content: `Please specify amount and token pair, e.g. **"Swap 100 DCC to USDT"** or **"Swap 1 MyToken for Raybean"**`,
+            content: `Please specify amount and token pair, e.g. **"Swap 100 DCC to USDT"** or **"Buy 1 MyToken with Raybean"**`,
             type: "text",
           };
         }
@@ -979,8 +983,8 @@ function matchCommand(input: string, wallet?: WalletInfo, options?: TerminalOpti
         const tokenOut = swapTokens[1];
         const quote = await getSwapQuote(tokenIn, tokenOut, amount);
 
-        // Auto-sign: if enabled and wallet connected, execute the swap immediately
-        if (options?.autoSign && wallet?.isConnected && wallet.seed) {
+        // Auto-execute: when user directly says swap/trade/buy (not just "quote"), or autoSign is on
+        if (shouldAutoExecute && wallet?.isConnected && wallet.seed) {
           const minReceived = quote.outputAmount * 0.995;
           let resolvedIn: { assetId: string | null; decimals: number };
           let resolvedOut: { assetId: string | null; decimals: number };
@@ -1006,7 +1010,7 @@ function matchCommand(input: string, wallet?: WalletInfo, options?: TerminalOpti
           );
           if (result.success) {
             return {
-              content: `⚡ **Auto-signed** — Swap executed!\n\n**${amount} ${tokenIn} → ${tokenOut}**\nTransaction ID: \`${result.id}\``,
+              content: `⚡ **Swap executed!**\n\n**${amount} ${tokenIn} → ${tokenOut}**\nTransaction ID: \`${result.id}\``,
               data: {
                 txId: result.id,
                 input: `${amount} ${tokenIn}`,
@@ -1018,12 +1022,13 @@ function matchCommand(input: string, wallet?: WalletInfo, options?: TerminalOpti
             };
           }
           return {
-            content: `⚡ Auto-sign attempted but failed: ${result.error}\n\nQuote was **${amount} ${tokenIn} → ~${quote.outputAmount} ${tokenOut}**.`,
+            content: `❌ Swap failed: ${result.error}\n\nQuote was **${amount} ${tokenIn} → ~${quote.outputAmount} ${tokenOut}**.`,
             data: formatObj(quote),
             type: "error",
           };
         }
 
+        // Wallet not connected or explicit quote request without autoSign — show quote only
         return {
           content: `Swap quote for **${amount} ${tokenIn} → ${tokenOut}**:`,
           data: formatObj(quote),
@@ -1208,7 +1213,7 @@ function matchCommand(input: string, wallet?: WalletInfo, options?: TerminalOpti
   }
 
   // Generic swap/AMM info
-  if (/\b(swap|amm|dex|trade|trading)\b/.test(lower) && !/\b(help|quote|recent|history|status|execute|confirm|send)\b/.test(lower)) {
+  if (/\b(swap|amm|dex|trade|trading)\b/.test(lower) && !/\b(help|quote|recent|history|status|execute|confirm|send|buy)\b/.test(lower)) {
     return {
       handler: async () => {
         let content = `**DCC Swap — Automated Market Maker**\n\n`;
@@ -1380,7 +1385,7 @@ function matchCommand(input: string, wallet?: WalletInfo, options?: TerminalOpti
   // Execute swap — "execute swap 100 DCC to USDT", "swap 50 DCC for USDT confirm"
   if (
     /\b(execute|confirm|send|do|perform)\b/.test(lower) &&
-    /\b(swap|trade|exchange)\b/.test(lower)
+    /\b(swap|trade|exchange|buy)\b/.test(lower)
   ) {
     const amount = extractAmount(input);
     const swapTokens = extractSwapTokens(input);

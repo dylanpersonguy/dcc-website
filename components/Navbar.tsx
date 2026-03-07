@@ -122,7 +122,7 @@ export default function Navbar() {
 
             <div className="ml-3">
               <a
-                href="#cta"
+                href="/terminal"
                 className="btn-primary inline-flex items-center gap-2 !py-2.5 !px-5 !text-[13px]"
               >
                 {t.nav.getStarted}
@@ -200,7 +200,7 @@ export default function Navbar() {
 
               <div className="pt-4">
                 <a
-                  href="#cta"
+                  href="/terminal"
                   onClick={() => setIsMobileOpen(false)}
                   className="btn-primary block text-center"
                 >
