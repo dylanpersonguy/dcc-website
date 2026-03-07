@@ -7,7 +7,7 @@ export const zh = {
     investors: "投资者",
     roadmap: "路线图",
     vision: "愿景",
-    terminal: "终端",
+    terminal: "仪表盘",
     getStarted: "开始使用",
   },
 

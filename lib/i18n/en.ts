@@ -7,7 +7,7 @@ export const en = {
     investors: "Investors",
     roadmap: "Roadmap",
     vision: "Vision",
-    terminal: "Terminal",
+    terminal: "Dashboard",
     getStarted: "Get Started",
   },
 

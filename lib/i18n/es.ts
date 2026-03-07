@@ -7,7 +7,7 @@ export const es = {
     investors: "Inversores",
     roadmap: "Hoja de Ruta",
     vision: "Visión",
-    terminal: "Terminal",
+    terminal: "Dashboard",
     getStarted: "Comenzar",
   },
 
