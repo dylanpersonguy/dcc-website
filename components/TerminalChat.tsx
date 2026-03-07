@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect, useCallback } from "react";
+import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Send,
@@ -8,12 +9,13 @@ import {
   Bot,
   User,
   Loader2,
-  Sparkles,
   ArrowRight,
   Blocks,
   Wallet,
   Activity,
   HelpCircle,
+  ArrowLeftRight,
+  Repeat,
 } from "lucide-react";
 import { processCommand, type TerminalMessage } from "@/lib/terminal";
 import { useI18n } from "@/lib/i18n";
@@ -21,8 +23,10 @@ import { useI18n } from "@/lib/i18n";
 const SUGGESTED_COMMANDS = [
   { icon: Blocks, label: "Block Height", command: "What's the current block height?" },
   { icon: Activity, label: "Latest Block", command: "Show me the latest block" },
+  { icon: ArrowLeftRight, label: "Bridge", command: "Tell me about the SOL to DCC bridge" },
+  { icon: Repeat, label: "Swap Pools", command: "List all liquidity pools" },
   { icon: Wallet, label: "Network Status", command: "Show me the network status" },
-  { icon: HelpCircle, label: "Help", command: "What can you do?" },
+  { icon: HelpCircle, label: "All Commands", command: "Help" },
 ];
 
 function DataCard({ data }: { data: Record<string, unknown> }) {
@@ -153,7 +157,7 @@ export default function TerminalChat() {
                 className="flex flex-col items-center justify-center min-h-[60vh] text-center"
               >
                 <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mb-6">
-                  <Sparkles className="w-8 h-8 text-primary" />
+                  <Image src="/logo.png" alt="DCC" width={48} height={48} className="rounded-lg" />
                 </div>
                 <h2 className="font-heading text-2xl md:text-3xl font-bold text-foreground mb-3">
                   {t.terminal.title}
@@ -163,7 +167,7 @@ export default function TerminalChat() {
                 </p>
 
                 {/* Suggested commands */}
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5 w-full max-w-lg">
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-2.5 w-full max-w-lg">
                   {SUGGESTED_COMMANDS.map((cmd, i) => (
                     <motion.button
                       key={i}

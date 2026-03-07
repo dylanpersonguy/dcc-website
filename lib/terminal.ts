@@ -9,13 +9,36 @@ import {
   getPeersList,
   getBlockchainData,
 } from "./blockchain";
+import {
+  getBridgeHealth,
+  getBridgeLimits,
+  getBridgeFees,
+  getBridgeQuote,
+  getBridgeOrderHistory,
+  getBridgeOrderById,
+  getBridgeStats,
+} from "./bridge";
+import {
+  getAmmHealth,
+  listPools,
+  getPool,
+  getPoolPrice,
+  getPoolStats,
+  listRecentSwaps,
+  getSwapsByAddress,
+  getSwapQuote,
+  getUserPositions,
+  getUserTokenBalance,
+  getTokenInfo,
+  getProtocolStatus,
+} from "./amm";
 
 export interface TerminalMessage {
   id: string;
   role: "user" | "assistant";
   content: string;
   data?: Record<string, unknown>;
-  type?: "text" | "block" | "balance" | "transaction" | "network" | "peers" | "error";
+  type?: "text" | "block" | "balance" | "transaction" | "network" | "peers" | "bridge" | "pool" | "swap" | "error";
   timestamp: number;
 }
 
@@ -40,8 +63,50 @@ function extractTxId(input: string): string | null {
   return match ? match[1] : null;
 }
 
+function extractAmount(input: string): number | null {
+  const match = input.match(/\b(\d+(?:\.\d+)?)\s*(?:sol|usdc|usdt|dcc|tokens?)?\b/i);
+  return match ? parseFloat(match[1]) : null;
+}
+
+function extractToken(input: string): string {
+  if (/\busdc\b/i.test(input)) return "USDC";
+  if (/\busdt\b/i.test(input)) return "USDT";
+  if (/\bsol\b/i.test(input)) return "SOL";
+  if (/\bdcc\b/i.test(input)) return "DCC";
+  return "SOL";
+}
+
+function extractPoolKey(input: string): string | null {
+  const match = input.match(/\b([A-Za-z0-9]+_[A-Za-z0-9]+)\b/);
+  return match ? match[1] : null;
+}
+
+function extractAssetId(input: string): string | null {
+  const match = input.match(/\b([A-HJ-NP-Za-km-z1-9]{32,44})\b/);
+  return match ? match[1] : null;
+}
+
+function extractOrderId(input: string): string | null {
+  const match = input.match(/\border(?:er)?\s*(?:id\s*)?[:#]?\s*([a-zA-Z0-9-]{8,})\b/i);
+  return match ? match[1] : null;
+}
+
+function formatObj(obj: Record<string, unknown>): Record<string, unknown> {
+  const out: Record<string, unknown> = {};
+  for (const [k, v] of Object.entries(obj)) {
+    if (v === null || v === undefined) continue;
+    if (typeof v === "object" && !Array.isArray(v)) continue;
+    out[k] = v;
+  }
+  return out;
+}
+
 function matchCommand(input: string): CommandMatch | null {
   const lower = input.toLowerCase().trim();
+
+  // ═══════════════════════════════════════════
+  // BLOCKCHAIN COMMANDS
+  // ═══════════════════════════════════════════
 
   // Block height
   if (
@@ -110,7 +175,7 @@ function matchCommand(input: string): CommandMatch | null {
 
   // Address balance
   const address = extractAddress(input);
-  if (address) {
+  if (address && !/\b(bridge.*history|order.*history|swap.*history|position)\b/.test(lower)) {
     return {
       handler: async () => {
         const bal = await getAddressBalance(address);
@@ -153,7 +218,7 @@ function matchCommand(input: string): CommandMatch | null {
   }
 
   // Network status / overview
-  if (/\b(network|status|overview|stats|summary|how.*network|chain\s*status)\b/.test(lower)) {
+  if (/\b(network|status|overview|stats|summary|how.*network|chain\s*status)\b/.test(lower) && !/\b(bridge|swap|pool|amm|protocol)\b/.test(lower)) {
     return {
       handler: async () => {
         const [data, version] = await Promise.all([
@@ -178,7 +243,7 @@ function matchCommand(input: string): CommandMatch | null {
   }
 
   // Peers
-  if (/\b(peers|nodes|connected|validators)\b/.test(lower)) {
+  if (/\b(peers|nodes|connected|validators)\b/.test(lower) && !/\b(bridge|swap|pool)\b/.test(lower)) {
     return {
       handler: async () => {
         const peers = await getPeersList();
@@ -195,7 +260,7 @@ function matchCommand(input: string): CommandMatch | null {
   }
 
   // Node version
-  if (/\b(version|node\s*version|software|client)\b/.test(lower)) {
+  if (/\b(node\s*version|software\s*version|client\s*version)\b/.test(lower)) {
     return {
       handler: async () => {
         const version = await getNodeVersion();
@@ -207,19 +272,408 @@ function matchCommand(input: string): CommandMatch | null {
     };
   }
 
-  // Help
+  // ═══════════════════════════════════════════
+  // BRIDGE COMMANDS
+  // ═══════════════════════════════════════════
+
+  // Bridge health / status
+  if (/\b(bridge)\b/.test(lower) && /\b(health|status|up|down|alive|running)\b/.test(lower)) {
+    return {
+      handler: async () => {
+        const health = await getBridgeHealth();
+        return {
+          content: `SOL ⇄ DCC Bridge status:`,
+          data: formatObj(health),
+          type: "bridge",
+        };
+      },
+    };
+  }
+
+  // Bridge limits
+  if (/\b(bridge)\b/.test(lower) && /\b(limit|min|max|minimum|maximum|range)\b/.test(lower)) {
+    return {
+      handler: async () => {
+        const limits = await getBridgeLimits();
+        return {
+          content: `Bridge deposit limits:`,
+          data: formatObj(limits),
+          type: "bridge",
+        };
+      },
+    };
+  }
+
+  // Bridge fees
+  if (/\b(bridge)\b/.test(lower) && /\b(fee|cost|charge|commission)\b/.test(lower) && !/\b(quote|estimate|how\s*much)\b/.test(lower)) {
+    return {
+      handler: async () => {
+        const fees = await getBridgeFees();
+        return {
+          content: `Bridge fee structure:`,
+          data: formatObj(fees),
+          type: "bridge",
+        };
+      },
+    };
+  }
+
+  // Bridge quote — "bridge quote 10 SOL", "how much DCC for 5 SOL"
+  if (
+    (/\b(bridge)\b/.test(lower) && /\b(quote|estimate|preview|calculate)\b/.test(lower)) ||
+    (/\b(how\s*much|convert|bridge)\b/.test(lower) && /\b(sol|usdc|usdt)\b/.test(lower) && /\b(dcc|get|receive)\b/.test(lower))
+  ) {
+    const amount = extractAmount(input);
+    const token = extractToken(input);
+    return {
+      handler: async () => {
+        if (!amount) {
+          return {
+            content: `Please specify an amount, e.g. **"Bridge quote 10 SOL"** or **"How much DCC for 100 USDC?"**`,
+            type: "text",
+          };
+        }
+        const quote = await getBridgeQuote(amount, token);
+        return {
+          content: `Bridge quote for **${amount} ${token}**:`,
+          data: formatObj(quote),
+          type: "bridge",
+        };
+      },
+    };
+  }
+
+  // Bridge stats
+  if (/\b(bridge)\b/.test(lower) && /\b(stats|statistics|analytics|volume|total|aggregate)\b/.test(lower)) {
+    return {
+      handler: async () => {
+        const stats = await getBridgeStats();
+        return {
+          content: `Bridge aggregate statistics:`,
+          data: formatObj(stats),
+          type: "bridge",
+        };
+      },
+    };
+  }
+
+  // Bridge order history by address
+  if (/\b(bridge)\b/.test(lower) && /\b(history|orders|past|previous)\b/.test(lower)) {
+    const addr = extractAddress(input);
+    return {
+      handler: async () => {
+        if (!addr) {
+          return {
+            content: `Please provide a DCC address, e.g. **"Bridge history 3P..."**`,
+            type: "text",
+          };
+        }
+        const orders = await getBridgeOrderHistory(addr);
+        if (!Array.isArray(orders) || orders.length === 0) {
+          return { content: `No bridge orders found for \`${addr}\`.`, type: "text" };
+        }
+        return {
+          content: `**${orders.length}** bridge order(s) for \`${addr}\`:`,
+          data: formatObj(orders[0] as Record<string, unknown>),
+          type: "bridge",
+        };
+      },
+    };
+  }
+
+  // Bridge order lookup by ID
+  if (/\b(bridge)\b/.test(lower) && /\b(order)\b/.test(lower)) {
+    const orderId = extractOrderId(input);
+    return {
+      handler: async () => {
+        if (!orderId) {
+          return {
+            content: `Please provide an order ID, e.g. **"Bridge order abc123-def456"**`,
+            type: "text",
+          };
+        }
+        const order = await getBridgeOrderById(orderId);
+        return {
+          content: `Bridge order **${orderId}**:`,
+          data: formatObj(order),
+          type: "bridge",
+        };
+      },
+    };
+  }
+
+  // Generic bridge info
+  if (/\b(bridge|sol\s*to\s*dcc|cross.?chain|solana.*dcc)\b/.test(lower) && !/\b(help)\b/.test(lower)) {
+    return {
+      handler: async () => {
+        const [health, limits] = await Promise.all([
+          getBridgeHealth().catch(() => null),
+          getBridgeLimits().catch(() => null),
+        ]);
+        let content = `**SOL ⇄ DCC Bridge**\n\n`;
+        content += `The cross-chain bridge converts SOL, USDC, and USDT on Solana into DCC on DecentralChain.\n\n`;
+        content += `**How it works:**\n`;
+        content += `• Deposits on Solana are locked in a PDA-controlled vault\n`;
+        content += `• Wrapped equivalents are minted on DCC\n`;
+        content += `• Fast committee-signed path for <100 SOL\n`;
+        content += `• Trustless Groth16 ZK-proof path for larger amounts\n`;
+        content += `• CR Stable stablecoin can be minted 1:1 via USDC/USDT\n\n`;
+        content += `Try: **"Bridge quote 10 SOL"**, **"Bridge fees"**, **"Bridge limits"**, **"Bridge stats"**`;
+        return { content, type: "text" };
+      },
+    };
+  }
+
+  // ═══════════════════════════════════════════
+  // AMM / SWAP COMMANDS
+  // ═══════════════════════════════════════════
+
+  // AMM health
+  if (/\b(amm|dex|swap)\b/.test(lower) && /\b(health|status|up|down|alive|running)\b/.test(lower)) {
+    return {
+      handler: async () => {
+        const health = await getAmmHealth();
+        return {
+          content: `DCC AMM status:`,
+          data: formatObj(health),
+          type: "swap",
+        };
+      },
+    };
+  }
+
+  // List pools
+  if (/\b(pool|pools|liquidity\s*pool)\b/.test(lower) && /\b(list|all|show|available|what|active)\b/.test(lower)) {
+    return {
+      handler: async () => {
+        const pools = await listPools();
+        if (!Array.isArray(pools) || pools.length === 0) {
+          return { content: `No liquidity pools found.`, type: "text" };
+        }
+        const poolList = pools.slice(0, 10).map(
+          (p) => `• **${p.poolKey}** — TVL: ${typeof p.tvl === "number" ? p.tvl.toLocaleString() : p.tvl}, Fee: ${p.feeBps}bps`
+        ).join("\n");
+        return {
+          content: `**${pools.length}** liquidity pool(s) on DCC Swap:\n\n${poolList}${pools.length > 10 ? `\n\n...and ${pools.length - 10} more` : ""}`,
+          type: "text",
+        };
+      },
+    };
+  }
+
+  // Pool details — "pool DCC_USDT", "show pool ..."
+  const poolKey = extractPoolKey(input);
+  if (poolKey && /\b(pool|info|detail|show|get)\b/.test(lower) && !/\b(stats|analytics|volume|apy)\b/.test(lower)) {
+    return {
+      handler: async () => {
+        const pool = await getPool(poolKey);
+        return {
+          content: `Pool **${poolKey}**:`,
+          data: formatObj(pool),
+          type: "pool",
+        };
+      },
+    };
+  }
+
+  // Pool price — "pool price DCC_USDT", "price of DCC_USDT"
+  if (poolKey && /\b(price|rate|exchange)\b/.test(lower)) {
+    return {
+      handler: async () => {
+        const priceData = await getPoolPrice(poolKey);
+        return {
+          content: `Spot price for **${poolKey}**:`,
+          data: formatObj(priceData),
+          type: "pool",
+        };
+      },
+    };
+  }
+
+  // Pool stats — "pool stats DCC_USDT", "DCC_USDT volume"
+  if (poolKey && /\b(stats|analytics|volume|apy|fee|metric)\b/.test(lower)) {
+    return {
+      handler: async () => {
+        const stats = await getPoolStats(poolKey);
+        return {
+          content: `Analytics for pool **${poolKey}**:`,
+          data: formatObj(stats),
+          type: "pool",
+        };
+      },
+    };
+  }
+
+  // Swap quote — "swap quote 100 DCC to USDT", "quote swap 50 USDT for DCC"
+  if (/\b(swap|trade|exchange)\b/.test(lower) && /\b(quote|estimate|preview|how\s*much|price|calculate)\b/.test(lower)) {
+    const amount = extractAmount(input);
+    const tokens = input.match(/\b(DCC|USDT|USDC|SOL|BTC|ETH)\b/gi);
+    return {
+      handler: async () => {
+        if (!amount || !tokens || tokens.length < 2) {
+          return {
+            content: `Please specify amount and token pair, e.g. **"Swap quote 100 DCC to USDT"** or **"How much USDT for 50 DCC?"**`,
+            type: "text",
+          };
+        }
+        const tokenIn = tokens[0].toUpperCase();
+        const tokenOut = tokens[1].toUpperCase();
+        const quote = await getSwapQuote(tokenIn, tokenOut, amount);
+        return {
+          content: `Swap quote for **${amount} ${tokenIn} → ${tokenOut}**:`,
+          data: formatObj(quote),
+          type: "swap",
+        };
+      },
+    };
+  }
+
+  // Recent swaps
+  if (/\b(recent|latest|last)\s*(swap|trade|exchange)\b/.test(lower)) {
+    return {
+      handler: async () => {
+        const swaps = await listRecentSwaps();
+        if (!Array.isArray(swaps) || swaps.length === 0) {
+          return { content: `No recent swaps found.`, type: "text" };
+        }
+        return {
+          content: `**${swaps.length}** recent swap(s):`,
+          data: formatObj(swaps[0] as Record<string, unknown>),
+          type: "swap",
+        };
+      },
+    };
+  }
+
+  // Swap history by address
+  if (/\b(swap|trade)\b/.test(lower) && /\b(history|past|previous)\b/.test(lower)) {
+    const addr = extractAddress(input);
+    return {
+      handler: async () => {
+        if (!addr) {
+          return { content: `Please provide an address, e.g. **"Swap history 3P..."**`, type: "text" };
+        }
+        const swaps = await getSwapsByAddress(addr);
+        if (!Array.isArray(swaps) || swaps.length === 0) {
+          return { content: `No swap history found for \`${addr}\`.`, type: "text" };
+        }
+        return {
+          content: `**${swaps.length}** swap(s) for \`${addr}\`:`,
+          data: formatObj(swaps[0] as Record<string, unknown>),
+          type: "swap",
+        };
+      },
+    };
+  }
+
+  // User LP positions
+  if (/\b(position|lp\s*position|my\s*pool|liquidity\s*position|portfolio)\b/.test(lower)) {
+    const addr = extractAddress(input);
+    return {
+      handler: async () => {
+        if (!addr) {
+          return { content: `Please provide an address, e.g. **"Positions 3P..."**`, type: "text" };
+        }
+        const positions = await getUserPositions(addr);
+        if (!Array.isArray(positions) || positions.length === 0) {
+          return { content: `No LP positions found for \`${addr}\`.`, type: "text" };
+        }
+        const posList = positions.slice(0, 5).map(
+          (p) => `• **${p.poolKey}** — LP Tokens: ${p.lpTokens}, Share: ${(p.share * 100).toFixed(2)}%`
+        ).join("\n");
+        return {
+          content: `LP positions for \`${addr}\`:\n\n${posList}`,
+          type: "pool",
+        };
+      },
+    };
+  }
+
+  // Token info — "token info [assetId]"
+  if (/\b(token)\b/.test(lower) && /\b(info|details|metadata|about|what\s*is)\b/.test(lower)) {
+    const assetId = extractAssetId(input);
+    return {
+      handler: async () => {
+        if (!assetId) {
+          return { content: `Please provide a token asset ID, e.g. **"Token info [assetId]"**`, type: "text" };
+        }
+        const token = await getTokenInfo(assetId);
+        return {
+          content: `Token **${token.name || assetId}**:`,
+          data: formatObj(token),
+          type: "text",
+        };
+      },
+    };
+  }
+
+  // Protocol status
+  if (/\b(protocol)\b/.test(lower) && /\b(status|info|health|state)\b/.test(lower)) {
+    return {
+      handler: async () => {
+        const status = await getProtocolStatus();
+        return {
+          content: `On-chain AMM protocol status:`,
+          data: formatObj(status),
+          type: "swap",
+        };
+      },
+    };
+  }
+
+  // Generic swap/AMM info
+  if (/\b(swap|amm|dex|trade|trading)\b/.test(lower) && !/\b(help|quote|recent|history|status)\b/.test(lower)) {
+    return {
+      handler: async () => {
+        let content = `**DCC Swap — Automated Market Maker**\n\n`;
+        content += `DCC Swap is a constant-product AMM (x·y=k) built natively on DecentralChain with RIDE smart contracts.\n\n`;
+        content += `**Capabilities:**\n`;
+        content += `• Create pools, add/remove liquidity, swap tokens\n`;
+        content += `• TypeScript SDK & React web UI\n`;
+        content += `• Configurable fee tiers (basis points)\n`;
+        content += `• On-chain contract: \`3Da7xwRRtXfkA46jaKTYb75Usd2ZNWdY6HX\`\n\n`;
+        content += `Try: **"List pools"**, **"Swap quote 100 DCC to USDT"**, **"Pool DCC_USDT"**, **"Recent swaps"**`;
+        return { content, type: "text" };
+      },
+    };
+  }
+
+  // ═══════════════════════════════════════════
+  // HELP
+  // ═══════════════════════════════════════════
+
   if (/\b(help|commands|what can|how to|guide|tutorial)\b/.test(lower)) {
     return {
       handler: async () => ({
-        content: `Here's what I can do:\n\n` +
-          `• **"What's the block height?"** — Current chain height\n` +
-          `• **"Show latest block"** — Latest block details\n` +
-          `• **"Show block #1000"** — Look up a specific block\n` +
-          `• **"Balance of 3P..."** — Check an address balance\n` +
-          `• **"Network status"** — Network overview & stats\n` +
-          `• **"Show peers"** — Connected peer nodes\n` +
-          `• **"Node version"** — Node software version\n` +
-          `• **"Look up tx [id]"** — Transaction details`,
+        content: `Here's everything I can do:\n\n` +
+          `**⛓ Blockchain**\n` +
+          `• **"Block height"** — Current chain height\n` +
+          `• **"Latest block"** — Last block details\n` +
+          `• **"Block #1000"** — Look up a specific block\n` +
+          `• **"Balance of 3P..."** — Address balance\n` +
+          `• **"Network status"** — Overview & stats\n` +
+          `• **"Peers"** — Connected nodes\n` +
+          `• **"Node version"** — Software version\n` +
+          `• **"Tx [id]"** — Transaction details\n\n` +
+          `**🌉 Bridge (SOL ⇄ DCC)**\n` +
+          `• **"Bridge"** — How the bridge works\n` +
+          `• **"Bridge status"** — Bridge health\n` +
+          `• **"Bridge limits"** — Min/max deposits\n` +
+          `• **"Bridge fees"** — Fee structure\n` +
+          `• **"Bridge quote 10 SOL"** — Conversion estimate\n` +
+          `• **"Bridge stats"** — Aggregate statistics\n` +
+          `• **"Bridge history 3P..."** — Order history\n\n` +
+          `**💱 DCC Swap (AMM)**\n` +
+          `• **"Swap"** — How the AMM works\n` +
+          `• **"List pools"** — All liquidity pools\n` +
+          `• **"Pool DCC_USDT"** — Pool details\n` +
+          `• **"Pool price DCC_USDT"** — Spot price\n` +
+          `• **"Pool stats DCC_USDT"** — Volume, fees, APY\n` +
+          `• **"Swap quote 100 DCC to USDT"** — Get a quote\n` +
+          `• **"Recent swaps"** — Latest trades\n` +
+          `• **"Positions 3P..."** — LP positions\n` +
+          `• **"Token info [assetId]"** — Token metadata\n` +
+          `• **"Protocol status"** — AMM contract state`,
         type: "text",
       }),
     };
@@ -237,10 +691,9 @@ export async function processCommand(
     return {
       content:
         `I'm not sure what you're asking. Try something like:\n\n` +
-        `• "What's the current block height?"\n` +
-        `• "Show me the latest block"\n` +
-        `• "Network status"\n` +
-        `• "Balance of 3P..."\n\n` +
+        `**⛓ Blockchain:** "Block height", "Latest block", "Balance of 3P..."\n` +
+        `**🌉 Bridge:** "Bridge quote 10 SOL", "Bridge fees", "Bridge limits"\n` +
+        `**💱 Swap:** "List pools", "Swap quote 100 DCC to USDT", "Recent swaps"\n\n` +
         `Type **"help"** for a full list of commands.`,
       type: "text",
     };
