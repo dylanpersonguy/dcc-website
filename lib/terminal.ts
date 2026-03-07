@@ -59,6 +59,10 @@ interface WalletInfo {
   seed?: string | null;
 }
 
+export interface TerminalOptions {
+  autoSign?: boolean;
+}
+
 function extractAddress(input: string): string | null {
   const match = input.match(/\b(3[A-Za-z0-9]{34})\b/);
   return match ? match[1] : null;
@@ -114,7 +118,7 @@ function formatObj(obj: Record<string, unknown>): Record<string, unknown> {
   return out;
 }
 
-function matchCommand(input: string, wallet?: WalletInfo): CommandMatch | null {
+function matchCommand(input: string, wallet?: WalletInfo, options?: TerminalOptions): CommandMatch | null {
   const lower = input.toLowerCase().trim();
 
   // ═══════════════════════════════════════════
@@ -532,6 +536,41 @@ function matchCommand(input: string, wallet?: WalletInfo): CommandMatch | null {
         const tokenIn = tokens[0].toUpperCase();
         const tokenOut = tokens[1].toUpperCase();
         const quote = await getSwapQuote(tokenIn, tokenOut, amount);
+
+        // Auto-sign: if enabled and wallet connected, execute the swap immediately
+        if (options?.autoSign && wallet?.isConnected && wallet.seed) {
+          const minReceived = quote.outputAmount * 0.995;
+          const assetIdIn = tokenIn === "DCC" ? null : tokenIn;
+          const assetIdOut = tokenOut === "DCC" ? null : tokenOut;
+          const result = await executeSwap(
+            wallet.seed,
+            tokenIn,
+            tokenOut,
+            amount,
+            minReceived,
+            assetIdIn,
+            assetIdOut,
+          );
+          if (result.success) {
+            return {
+              content: `⚡ **Auto-signed** — Swap executed!\n\n**${amount} ${tokenIn} → ${tokenOut}**\nTransaction ID: \`${result.id}\``,
+              data: {
+                txId: result.id,
+                input: `${amount} ${tokenIn}`,
+                estimatedOutput: `~${quote.outputAmount} ${tokenOut}`,
+                slippageTolerance: "0.5%",
+                status: "Broadcast",
+              },
+              type: "swap",
+            };
+          }
+          return {
+            content: `⚡ Auto-sign attempted but failed: ${result.error}\n\nQuote was **${amount} ${tokenIn} → ~${quote.outputAmount} ${tokenOut}**.`,
+            data: formatObj(quote),
+            type: "error",
+          };
+        }
+
         return {
           content: `Swap quote for **${amount} ${tokenIn} → ${tokenOut}**:`,
           data: formatObj(quote),
@@ -923,8 +962,9 @@ function matchCommand(input: string, wallet?: WalletInfo): CommandMatch | null {
 export async function processCommand(
   input: string,
   wallet?: WalletInfo,
+  options?: TerminalOptions,
 ): Promise<Omit<TerminalMessage, "id" | "role" | "timestamp">> {
-  const command = matchCommand(input, wallet);
+  const command = matchCommand(input, wallet, options);
 
   if (!command) {
     return {

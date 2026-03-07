@@ -20,6 +20,7 @@ import {
 import { processCommand, type TerminalMessage } from "@/lib/terminal";
 import { useI18n } from "@/lib/i18n";
 import { useWallet } from "@/lib/wallet-context";
+import TerminalSettings, { DEFAULT_SETTINGS, type TerminalSettingsState } from "@/components/TerminalSettings";
 
 const SUGGESTED_COMMANDS = [
   { icon: Blocks, label: "Block Height", command: "What's the current block height?" },
@@ -95,6 +96,7 @@ export default function TerminalChat() {
   const [messages, setMessages] = useState<TerminalMessage[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [settings, setSettings] = useState<TerminalSettingsState>(DEFAULT_SETTINGS);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -129,6 +131,8 @@ export default function TerminalChat() {
       isConnected,
       address: account?.address,
       seed: getSeed(),
+    }, {
+      autoSign: settings.autoSign,
     });
 
     const assistantMsg: TerminalMessage = {
@@ -293,6 +297,7 @@ export default function TerminalChat() {
                 className="w-full bg-surface/60 border border-white/[0.06] rounded-xl pl-11 pr-4 py-3.5 text-[14px] text-foreground placeholder:text-muted/50 focus:outline-none focus:border-primary/30 focus:ring-1 focus:ring-primary/10 transition-all disabled:opacity-50"
               />
             </div>
+            <TerminalSettings settings={settings} onSettingsChange={setSettings} />
             <button
               type="submit"
               disabled={!input.trim() || isLoading}
