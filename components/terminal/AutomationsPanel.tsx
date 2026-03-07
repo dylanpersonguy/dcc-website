@@ -115,7 +115,25 @@ function SidebarAutoItem({
           <div className="flex items-center gap-2 text-[10px] text-muted/40 mt-0.5">
             <span>{automation.runCount}{automation.schedule.maxRuns ? `/${automation.schedule.maxRuns}` : ""}</span>
             {automation.nextRunAt && <span>Next: {formatNextRun(automation)}</span>}
+            {automation.runs.length > 0 && (() => {
+              const ok = automation.runs.filter(r => r.success).length;
+              const fail = automation.runs.length - ok;
+              return (
+                <span className={fail > 0 ? "text-red-400/60" : "text-green-400/60"}>
+                  {ok}✓ {fail > 0 ? `${fail}✗` : ""}
+                </span>
+              );
+            })()}
           </div>
+          {/* Progress bar for max-runs automations */}
+          {automation.schedule.maxRuns && automation.schedule.maxRuns > 0 && (
+            <div className="h-1 rounded-full bg-white/[0.04] overflow-hidden mt-1">
+              <div
+                className="h-full rounded-full bg-primary/60 transition-all"
+                style={{ width: `${Math.min((automation.runCount / automation.schedule.maxRuns) * 100, 100)}%` }}
+              />
+            </div>
+          )}
         </div>
         {expanded ? <ChevronDown className="w-3 h-3 text-muted/30" /> : <ChevronRight className="w-3 h-3 text-muted/30" />}
       </button>
@@ -234,6 +252,10 @@ export default function AutomationsPanel({ onOpenChat }: AutomationsPanelProps) 
   });
 
   const activeCount = automations.filter((a) => a.status === "active").length;
+  const pausedCount = automations.filter((a) => a.status === "paused").length;
+  const totalRuns = automations.reduce((s, a) => s + a.runCount, 0);
+  const totalSuccess = automations.reduce((s, a) => s + a.runs.filter(r => r.success).length, 0);
+  const totalFail = automations.reduce((s, a) => s + a.runs.filter(r => !r.success).length, 0);
 
   return (
     <div className="h-full flex flex-col">
@@ -272,6 +294,16 @@ export default function AutomationsPanel({ onOpenChat }: AutomationsPanelProps) 
                 {f === "all" ? `All (${automations.length})` : f === "active" ? "Active" : "Done"}
               </button>
             ))}
+          </div>
+        )}
+
+        {/* Stats summary */}
+        {automations.length > 0 && totalRuns > 0 && (
+          <div className="flex items-center gap-3 mt-1.5 px-1">
+            <span className="text-[9px] text-muted/40">{totalRuns} runs</span>
+            {totalSuccess > 0 && <span className="text-[9px] text-green-400/50">{totalSuccess}✓</span>}
+            {totalFail > 0 && <span className="text-[9px] text-red-400/50">{totalFail}✗</span>}
+            {pausedCount > 0 && <span className="text-[9px] text-yellow-400/50">{pausedCount} paused</span>}
           </div>
         )}
       </div>
@@ -320,7 +352,15 @@ export default function AutomationsPanel({ onOpenChat }: AutomationsPanelProps) 
 
       {/* Footer info */}
       {automations.length > 0 && (
-        <div className="px-3 py-2 border-t border-white/[0.04]">
+        <div className="px-3 py-2 border-t border-white/[0.04] space-y-1.5">
+          {typeof window !== "undefined" && "Notification" in window && Notification.permission !== "granted" && (
+            <button
+              onClick={() => Notification.requestPermission()}
+              className="w-full text-[10px] text-primary/60 hover:text-primary px-2 py-1 rounded-lg hover:bg-primary/5 transition-colors text-center"
+            >
+              🔔 Enable browser notifications
+            </button>
+          )}
           <p className="text-[9px] text-muted/25 text-center leading-relaxed">
             Automations run while this tab is open. Engine checks every 30s.
           </p>

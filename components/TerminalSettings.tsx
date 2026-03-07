@@ -8,9 +8,27 @@ export interface TerminalSettingsState {
   autoSign: boolean;
 }
 
+const SETTINGS_KEY = "dcc-terminal-settings";
+
 const DEFAULT_SETTINGS: TerminalSettingsState = {
   autoSign: true,
 };
+
+export function loadPersistedSettings(): TerminalSettingsState {
+  if (typeof window === "undefined") return DEFAULT_SETTINGS;
+  try {
+    const raw = localStorage.getItem(SETTINGS_KEY);
+    return raw ? { ...DEFAULT_SETTINGS, ...JSON.parse(raw) } : DEFAULT_SETTINGS;
+  } catch {
+    return DEFAULT_SETTINGS;
+  }
+}
+
+export function persistSettings(s: TerminalSettingsState) {
+  try {
+    localStorage.setItem(SETTINGS_KEY, JSON.stringify(s));
+  } catch { /* quota exceeded */ }
+}
 
 interface Props {
   settings: TerminalSettingsState;
@@ -112,7 +130,7 @@ export default function TerminalSettings({ settings, onSettingsChange }: Props) 
             {/* Footer */}
             <div className="px-4 py-2.5 border-t border-white/[0.04]">
               <p className="text-[10px] text-muted/40 leading-relaxed">
-                Session only — resets when you leave the page.
+                Settings are saved across sessions.
               </p>
             </div>
           </motion.div>

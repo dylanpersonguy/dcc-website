@@ -29,6 +29,16 @@ export async function getBlockHeight(): Promise<number> {
   return data.height;
 }
 
+/** Quick health check — returns true if the node responds */
+export async function checkNodeHealth(): Promise<boolean> {
+  try {
+    const res = await fetch(`${NODE_URL}/blocks/height`, { cache: "no-store", signal: AbortSignal.timeout(5000) });
+    return res.ok;
+  } catch {
+    return false;
+  }
+}
+
 export async function getLastBlockHeader(): Promise<BlockHeader> {
   const raw = await fetchJSON<Record<string, unknown>>("/blocks/headers/last");
   return {

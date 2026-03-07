@@ -599,6 +599,21 @@ export async function executeAutomationRun(
 }
 
 /**
+ * Send a browser notification if permission is granted.
+ */
+function sendBrowserNotification(title: string, body: string) {
+  if (typeof window === "undefined" || !("Notification" in window)) return;
+  if (Notification.permission !== "granted") return;
+  try {
+    new Notification(title, {
+      body,
+      icon: "/logo.png",
+      tag: `dcc-auto-${Date.now()}`,
+    });
+  } catch { /* silent — may fail in some contexts */ }
+}
+
+/**
  * Process the tick for all active automations.
  * Called periodically (every ~30s) by the AutomationEngine hook.
  */
@@ -618,6 +633,19 @@ export async function tickAutomations(
     auto.runs.push(run);
     auto.runCount++;
     auto.lastRunAt = run.timestamp;
+
+    // Browser notification
+    if (run.success) {
+      sendBrowserNotification(
+        `✅ ${auto.name}`,
+        run.result?.slice(0, 120) || "Automation completed successfully"
+      );
+    } else if (run.error) {
+      sendBrowserNotification(
+        `❌ ${auto.name}`,
+        run.error.slice(0, 120)
+      );
+    }
 
     if (!run.success && run.error) {
       // Failed — mark as failed after 3 consecutive failures

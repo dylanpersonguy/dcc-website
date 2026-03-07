@@ -96,7 +96,7 @@ export interface TerminalMessage {
   role: "user" | "assistant";
   content: string;
   data?: Record<string, unknown>;
-  type?: "text" | "block" | "block-txs" | "balance" | "transaction" | "network" | "peers" | "bridge" | "pool" | "swap" | "automation" | "error";
+  type?: "text" | "block" | "block-txs" | "balance" | "transaction" | "tx-history" | "network" | "peers" | "bridge" | "pool" | "swap" | "automation" | "error";
   timestamp: number;
 }
 
@@ -997,34 +997,24 @@ function matchCommand(input: string, wallet?: WalletInfo, options?: TerminalOpti
               type: "error",
             };
           }
-          const result = await executeSwap(
-            wallet.seed,
-            tokenIn,
-            tokenOut,
-            amount,
-            minReceived,
-            resolvedIn.assetId,
-            resolvedOut.assetId,
-            resolvedIn.decimals,
-            resolvedOut.decimals,
-          );
-          if (result.success) {
-            return {
-              content: `⚡ **Swap executed!**\n\n**${amount} ${tokenIn} → ${tokenOut}**\nTransaction ID: \`${result.id}\``,
-              data: {
-                txId: result.id,
-                input: `${amount} ${tokenIn}`,
-                estimatedOutput: `~${quote.outputAmount} ${tokenOut}`,
-                slippageTolerance: "0.5%",
-                status: "Broadcast",
-              },
-              type: "swap",
-            };
-          }
+          // Return pending swap with countdown — TerminalChat handles execution
           return {
-            content: `❌ Swap failed: ${result.error}\n\nQuote was **${amount} ${tokenIn} → ~${quote.outputAmount} ${tokenOut}**.`,
-            data: formatObj(quote),
-            type: "error",
+            content: `⚡ **Swap preview — executing shortly…**\n\n**${amount} ${tokenIn} → ~${quote.outputAmount} ${tokenOut}**`,
+            data: {
+              ...formatObj(quote),
+              pendingSwap: {
+                tokenIn,
+                tokenOut,
+                amount,
+                minReceived,
+                assetIdIn: resolvedIn.assetId,
+                assetIdOut: resolvedOut.assetId,
+                decimalsIn: resolvedIn.decimals,
+                decimalsOut: resolvedOut.decimals,
+              },
+              status: "Pending",
+            },
+            type: "swap",
           };
         }
 
@@ -1317,17 +1307,23 @@ function matchCommand(input: string, wallet?: WalletInfo, options?: TerminalOpti
           return `**${i + 1}.** ${typeName}${recipient}${amt} | Fee: ${fee} DCC\n   \`${(tx.id as string).slice(0, 12)}…\` — ${time}`;
         });
         return {
-          content: `📜 **Transaction History** (${txs.length} most recent)\n**Address:** \`${targetAddr}\`\n\n${lines.join("\n\n")}${txs.length > 15 ? `\n\n...and ${txs.length - 15} more` : ""}`,
+          content: `📜 **Transaction History** (${txs.length} most recent)\n**Address:** \`${targetAddr}\``,
           data: {
             address: targetAddr,
-            totalShown: Math.min(txs.length, 15),
-            transactions: txs.slice(0, 15).map(tx => ({
+            totalShown: Math.min(txs.length, 20),
+            transactions: txs.slice(0, 20).map(tx => ({
               id: tx.id,
               type: TX_TYPE_NAMES[tx.type as number] || `Type ${tx.type}`,
+              typeId: tx.type,
               timestamp: tx.timestamp,
+              time: new Date(tx.timestamp as number).toLocaleString(),
+              fee: ((tx.fee as number) / 1e8).toFixed(4),
+              amount: tx.amount ? ((tx.amount as number) / 1e8).toFixed(4) : undefined,
+              recipient: tx.recipient as string | undefined,
+              sender: tx.sender as string | undefined,
             })),
           },
-          type: "transaction",
+          type: "tx-history",
         };
       },
     };
@@ -1654,10 +1650,49 @@ function matchCommand(input: string, wallet?: WalletInfo, options?: TerminalOpti
     };
   }
 
-  // Transfer / send — "send 10 DCC to 3P..."
+  // Transfer / send — multi-address batch: "send 10 DCC to 3P..., 3P..., 3P..."
   if (/\b(send|transfer)\b/.test(lower) && /\b(dcc|to)\b/.test(lower) && !/\b(create|issue|mint|burn|token)\b/.test(lower)) {
     const amount = extractAmount(input);
-    const addr = extractAddress(input);
+    const allAddresses = input.match(/3P[A-Za-z0-9]{33}/g) || [];
+    const uniqueAddrs = [...new Set(allAddresses)];
+
+    // Multi-address batch send
+    if (uniqueAddrs.length > 1 && amount) {
+      return {
+        handler: async () => {
+          if (!wallet?.isConnected || !wallet.seed) {
+            return { content: `⚠️ Wallet not connected. Please connect your wallet first.`, type: "error" };
+          }
+          const results: { addr: string; txId?: string; error?: string }[] = [];
+          for (const addr of uniqueAddrs) {
+            const r = await sendTransfer(wallet.seed, addr, amount);
+            results.push({ addr, txId: r.success ? r.id : undefined, error: r.success ? undefined : r.error });
+          }
+          const success = results.filter(r => r.txId);
+          const failed = results.filter(r => r.error);
+          const lines = results.map((r, i) =>
+            r.txId
+              ? `**${i + 1}.** ✅ \`${r.addr.slice(0, 12)}…\` — \`${r.txId!.slice(0, 12)}…\``
+              : `**${i + 1}.** ❌ \`${r.addr.slice(0, 12)}…\` — ${r.error}`
+          );
+          return {
+            content: `📦 **Batch Transfer** — ${amount} DCC × ${uniqueAddrs.length} recipients\n\n${lines.join("\n")}\n\n✅ ${success.length} sent | ${failed.length > 0 ? `❌ ${failed.length} failed` : "All succeeded!"}`,
+            data: {
+              batchSize: uniqueAddrs.length,
+              amount: `${amount} DCC each`,
+              totalAmount: `${amount * uniqueAddrs.length} DCC`,
+              successful: success.length,
+              failed: failed.length,
+              status: failed.length === 0 ? "All Broadcast" : "Partial",
+            },
+            type: "transaction",
+          };
+        },
+      };
+    }
+
+    // Single-address send
+    const addr = uniqueAddrs[0] || extractAddress(input);
     return {
       handler: async () => {
         if (!wallet?.isConnected || !wallet.seed) {

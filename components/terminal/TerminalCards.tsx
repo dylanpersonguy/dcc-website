@@ -207,39 +207,82 @@ export function BalanceCard({ data }: { data: Record<string, unknown> }) {
           </motion.div>
         )}
 
-        {/* Visual bar chart for portfolio */}
-        {tokens && tokens.length > 0 && (
-          <motion.div variants={fadeUp} className="space-y-1.5 px-3 py-2">
-            <p className="text-[10px] uppercase tracking-wider text-muted/50 font-medium mb-2">Distribution</p>
-            {tokens.slice(0, 8).map((t, i) => {
-              const maxAmount = Math.max(...tokens.map(tk => tk.amount));
-              const barWidth = maxAmount > 0 ? Math.max((t.amount / maxAmount) * 100, 2) : 0;
-              const colors = ["bg-primary", "bg-green-400", "bg-blue-400", "bg-purple-400", "bg-yellow-400", "bg-red-400", "bg-cyan-400", "bg-orange-400"];
-              return (
-                <motion.div
-                  key={t.name}
-                  initial={{ opacity: 0, width: 0 }}
-                  animate={{ opacity: 1, width: "100%" }}
-                  transition={{ delay: i * 0.05, duration: 0.3 }}
-                  className="flex items-center gap-2"
-                >
-                  <span className="text-[11px] font-medium text-muted w-16 shrink-0 truncate">{t.name}</span>
-                  <div className="flex-1 bg-white/[0.04] rounded-full h-2.5 overflow-hidden">
-                    <motion.div
-                      initial={{ width: 0 }}
-                      animate={{ width: `${barWidth}%` }}
-                      transition={{ delay: 0.2 + i * 0.05, duration: 0.4, ease: "easeOut" }}
-                      className={`h-full rounded-full ${colors[i % colors.length]}/60`}
+        {/* Portfolio donut + bar chart */}
+        {tokens && tokens.length > 0 && (() => {
+          const total = tokens.reduce((s, t) => s + t.amount, 0);
+          const COLORS = ["#6366f1", "#34d399", "#60a5fa", "#a78bfa", "#facc15", "#f87171", "#22d3ee", "#fb923c"];
+          const slices = tokens.slice(0, 8);
+          let cumulativePct = 0;
+          const donutData = slices.map((t, i) => {
+            const pct = total > 0 ? (t.amount / total) * 100 : 0;
+            const offset = cumulativePct;
+            cumulativePct += pct;
+            return { ...t, pct, offset, color: COLORS[i % COLORS.length] };
+          });
+          return (
+            <motion.div variants={fadeUp} className="space-y-3 px-3 py-2">
+              <p className="text-[10px] uppercase tracking-wider text-muted/50 font-medium">Distribution</p>
+              {/* Donut chart */}
+              <div className="flex items-center gap-4">
+                <svg viewBox="0 0 36 36" className="w-24 h-24 flex-shrink-0">
+                  <circle cx="18" cy="18" r="15.9" fill="none" stroke="rgba(255,255,255,0.04)" strokeWidth="3" />
+                  {donutData.map((d, i) => (
+                    <motion.circle
+                      key={d.name}
+                      cx="18" cy="18" r="15.9"
+                      fill="none"
+                      stroke={d.color}
+                      strokeWidth="3"
+                      strokeDasharray={`${d.pct} ${100 - d.pct}`}
+                      strokeDashoffset={`${25 - d.offset}`}
+                      strokeLinecap="round"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 0.8 }}
+                      transition={{ delay: 0.1 + i * 0.06, duration: 0.4 }}
                     />
-                  </div>
-                  <span className="text-[10px] font-mono text-muted/70 w-20 text-right shrink-0">
-                    {t.amount >= 1000 ? t.amount.toLocaleString(undefined, { maximumFractionDigits: 2 }) : t.amount.toFixed(4)}
-                  </span>
-                </motion.div>
-              );
-            })}
-          </motion.div>
-        )}
+                  ))}
+                </svg>
+                <div className="flex-1 space-y-1">
+                  {donutData.map((d) => (
+                    <div key={d.name} className="flex items-center gap-2 text-[10px]">
+                      <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: d.color }} />
+                      <span className="text-muted truncate flex-1">{d.name}</span>
+                      <span className="text-muted/60 font-mono">{d.pct.toFixed(1)}%</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              {/* Bar chart */}
+              {slices.map((t, i) => {
+                const maxAmount = Math.max(...tokens.map(tk => tk.amount));
+                const barWidth = maxAmount > 0 ? Math.max((t.amount / maxAmount) * 100, 2) : 0;
+                const colors = ["bg-primary", "bg-green-400", "bg-blue-400", "bg-purple-400", "bg-yellow-400", "bg-red-400", "bg-cyan-400", "bg-orange-400"];
+                return (
+                  <motion.div
+                    key={t.name}
+                    initial={{ opacity: 0, width: 0 }}
+                    animate={{ opacity: 1, width: "100%" }}
+                    transition={{ delay: i * 0.05, duration: 0.3 }}
+                    className="flex items-center gap-2"
+                  >
+                    <span className="text-[11px] font-medium text-muted w-16 shrink-0 truncate">{t.name}</span>
+                    <div className="flex-1 bg-white/[0.04] rounded-full h-2.5 overflow-hidden">
+                      <motion.div
+                        initial={{ width: 0 }}
+                        animate={{ width: `${barWidth}%` }}
+                        transition={{ delay: 0.2 + i * 0.05, duration: 0.4, ease: "easeOut" }}
+                        className={`h-full rounded-full ${colors[i % colors.length]}/60`}
+                      />
+                    </div>
+                    <span className="text-[10px] font-mono text-muted/70 w-20 text-right shrink-0">
+                      {t.amount >= 1000 ? t.amount.toLocaleString(undefined, { maximumFractionDigits: 2 }) : t.amount.toFixed(4)}
+                    </span>
+                  </motion.div>
+                );
+              })}
+            </motion.div>
+          );
+        })()}
 
         {/* DCC balances */}
         {dccEntries.length > 0 && (
@@ -311,6 +354,114 @@ export function TransactionCard({ data }: { data: Record<string, unknown> }) {
             .map(([key, val]) => (
               <Stat key={key} label={formatLabel(key)} value={String(val)} />
             ))}
+        </div>
+      </div>
+    </CardShell>
+  );
+}
+
+/* ─── TRANSACTION HISTORY CARD (with filters) ─── */
+export function TransactionHistoryCard({ data }: { data: Record<string, unknown> }) {
+  const txs = (data.transactions ?? []) as Array<{
+    id: string; type: string; typeId?: number; timestamp: number;
+    time: string; fee: string; amount?: string; recipient?: string; sender?: string;
+  }>;
+  const address = data.address as string | undefined;
+  const [typeFilter, setTypeFilter] = useState<string>("all");
+  const [search, setSearch] = useState("");
+
+  const uniqueTypes = Array.from(new Set(txs.map(t => t.type)));
+  const filtered = txs.filter(t => {
+    if (typeFilter !== "all" && t.type !== typeFilter) return false;
+    if (search) {
+      const s = search.toLowerCase();
+      return (t.id?.toLowerCase().includes(s) || t.type?.toLowerCase().includes(s) || t.recipient?.toLowerCase().includes(s) || t.sender?.toLowerCase().includes(s));
+    }
+    return true;
+  });
+
+  return (
+    <CardShell accent="green">
+      <CardHeader
+        icon={<ArrowUpRight className="w-3.5 h-3.5 text-green-400" />}
+        title="Transaction History"
+        emoji="📜"
+        badge={
+          <span className="px-2 py-0.5 rounded-md bg-green-500/10 text-green-400 text-[11px] font-mono font-medium">
+            {filtered.length}/{txs.length}
+          </span>
+        }
+      />
+      <div className="p-3 space-y-2">
+        {/* Filter bar */}
+        <div className="flex items-center gap-2 flex-wrap">
+          <select
+            value={typeFilter}
+            onChange={e => setTypeFilter(e.target.value)}
+            className="bg-white/[0.04] border border-white/[0.08] rounded-lg px-2 py-1 text-[11px] text-muted outline-none focus:border-primary/30"
+          >
+            <option value="all">All types</option>
+            {uniqueTypes.map(t => <option key={t} value={t}>{t}</option>)}
+          </select>
+          <input
+            type="text"
+            placeholder="Search ID or address…"
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            className="flex-1 bg-white/[0.04] border border-white/[0.08] rounded-lg px-2 py-1 text-[11px] text-foreground placeholder:text-muted/40 outline-none focus:border-primary/30 min-w-0"
+          />
+        </div>
+
+        {/* Address */}
+        {address && (
+          <motion.div variants={fadeUp} className="flex items-center gap-2 px-3 py-2 rounded-lg bg-white/[0.02]">
+            <div className="min-w-0 flex-1">
+              <p className="text-[10px] uppercase tracking-wider text-muted/70 font-medium">Address</p>
+              <div className="flex items-center gap-1">
+                <p className="text-[12px] text-foreground font-mono truncate">{address}</p>
+                <CopyBtn text={address} />
+              </div>
+            </div>
+          </motion.div>
+        )}
+
+        {/* Transaction list */}
+        <div className="space-y-1.5 max-h-[360px] overflow-y-auto">
+          {filtered.map((tx, i) => (
+            <motion.div
+              key={tx.id || i}
+              initial={{ opacity: 0, x: -6 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: i * 0.03, duration: 0.2 }}
+              className="rounded-lg border border-white/[0.04] bg-white/[0.01] px-3 py-2"
+            >
+              <div className="flex items-center justify-between mb-1">
+                <div className="flex items-center gap-2">
+                  <span className={`px-1.5 py-0.5 rounded text-[10px] font-medium ${
+                    tx.type === "Transfer" ? "bg-green-500/10 text-green-400" :
+                    tx.type === "Invoke Script" ? "bg-purple-500/10 text-purple-400" :
+                    tx.type === "Data" ? "bg-yellow-500/10 text-yellow-400" :
+                    "bg-white/[0.06] text-muted"
+                  }`}>
+                    {tx.type}
+                  </span>
+                  {tx.amount && <span className="text-[11px] font-mono text-green-400">{tx.amount} DCC</span>}
+                </div>
+                <span className="text-[10px] text-muted/50">{tx.time}</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <span className="text-[10px] text-muted/50 font-mono truncate">{tx.id}</span>
+                {tx.id && <CopyBtn text={tx.id} />}
+              </div>
+              {tx.recipient && (
+                <span className="text-[10px] text-muted/40">→ {tx.recipient.slice(0, 12)}…</span>
+              )}
+              <span className="text-[10px] text-muted/30 ml-2">Fee: {tx.fee}</span>
+            </motion.div>
+          ))}
+          {filtered.length === 0 && (
+            <p className="text-[11px] text-muted/30 text-center py-4">No transactions match filters</p>
+          )}
         </div>
       </div>
     </CardShell>
@@ -437,17 +588,31 @@ export function PoolCard({ data }: { data: Record<string, unknown> }) {
 }
 
 /* ─── SWAP CARD ─── */
-export function SwapCard({ data }: { data: Record<string, unknown> }) {
+export function SwapCard({ data, onCancelSwap }: { data: Record<string, unknown>; onCancelSwap?: (msgId: string) => void }) {
   const isExecuted = !!data.txId;
+  const isPending = !!data.pendingSwap;
+  const countdown = typeof data.countdown === "number" ? data.countdown : undefined;
+  const isCancelled = data.status === "Cancelled";
+  const isFailed = data.status === "Failed";
+  const accent = isExecuted ? "green" : isCancelled || isFailed ? "red" : isPending ? "yellow" : "yellow";
+  const msgId = typeof data.msgId === "string" ? data.msgId : undefined;
   return (
-    <CardShell accent={isExecuted ? "green" : "yellow"}>
+    <CardShell accent={accent}>
       <CardHeader
         icon={<ArrowLeftRight className="w-3.5 h-3.5 text-yellow-400" />}
-        title={isExecuted ? "Swap Executed" : "Swap Quote"}
-        emoji={isExecuted ? "⚡" : "🔄"}        badge={
+        title={isExecuted ? "Swap Executed" : isPending ? "Swap Pending" : "Swap Quote"}
+        emoji={isExecuted ? "⚡" : isPending ? "⏳" : "🔄"}        badge={
           isExecuted ? (
             <span className="px-2 py-0.5 rounded-md bg-green-500/10 text-green-400 text-[11px] font-medium flex items-center gap-1">
-              <CheckCircle2 className="w-3 h-3" /> Confirmed
+              <CheckCircle2 className="w-3 h-3" /> {String(data.status || "Confirmed")}
+            </span>
+          ) : isPending && countdown != null ? (
+            <span className="px-2 py-0.5 rounded-md bg-yellow-500/10 text-yellow-400 text-[11px] font-mono font-medium animate-pulse">
+              Executing in {countdown}s…
+            </span>
+          ) : isCancelled ? (
+            <span className="px-2 py-0.5 rounded-md bg-red-500/10 text-red-400 text-[11px] font-medium">
+              Cancelled
             </span>
           ) : (
             <span className="px-2 py-0.5 rounded-md bg-yellow-500/10 text-yellow-400 text-[11px] font-medium">
@@ -457,6 +622,31 @@ export function SwapCard({ data }: { data: Record<string, unknown> }) {
         }
       />
       <div className="p-3 space-y-2">
+        {/* Countdown progress bar */}
+        {isPending && countdown != null && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="space-y-2"
+          >
+            <div className="h-1.5 rounded-full bg-white/[0.04] overflow-hidden">
+              <motion.div
+                className="h-full rounded-full bg-gradient-to-r from-yellow-400 to-orange-400"
+                initial={{ width: "100%" }}
+                animate={{ width: `${(countdown / 5) * 100}%` }}
+                transition={{ duration: 0.3 }}
+              />
+            </div>
+            {onCancelSwap && msgId && (
+              <button
+                onClick={() => onCancelSwap(msgId)}
+                className="px-3 py-1.5 rounded-lg text-[11px] font-medium bg-red-500/10 text-red-400 hover:bg-red-500/20 transition-colors"
+              >
+                ✕ Cancel Swap
+              </button>
+            )}
+          </motion.div>
+        )}
         {data.txId != null && (
           <motion.div variants={fadeUp} className="flex items-center gap-2 px-3 py-2 rounded-lg bg-white/[0.02]">
             <div className="min-w-0 flex-1">
@@ -470,7 +660,7 @@ export function SwapCard({ data }: { data: Record<string, unknown> }) {
         )}
         <div className="grid grid-cols-2 gap-2">
           {Object.entries(data)
-            .filter(([k]) => k !== "txId")
+            .filter(([k]) => !["txId", "pendingSwap", "countdown", "msgId"].includes(k))
             .map(([key, val]) => (
               <Stat
                 key={key}
@@ -656,7 +846,7 @@ export function GenericDataCard({ data }: { data: Record<string, unknown> }) {
 }
 
 /* ─── ROUTER ─── */
-export function TerminalDataCard({ type, data }: { type?: string; data: Record<string, unknown> }) {
+export function TerminalDataCard({ type, data, onCancelSwap }: { type?: string; data: Record<string, unknown>; onCancelSwap?: (msgId: string) => void }) {
   switch (type) {
     case "block":
       return <BlockCard data={data} />;
@@ -666,6 +856,8 @@ export function TerminalDataCard({ type, data }: { type?: string; data: Record<s
       return <BalanceCard data={data} />;
     case "transaction":
       return <TransactionCard data={data} />;
+    case "tx-history":
+      return <TransactionHistoryCard data={data} />;
     case "network":
       return <NetworkCard data={data} />;
     case "peers":
@@ -675,7 +867,7 @@ export function TerminalDataCard({ type, data }: { type?: string; data: Record<s
     case "pool":
       return <PoolCard data={data} />;
     case "swap":
-      return <SwapCard data={data} />;
+      return <SwapCard data={data} onCancelSwap={onCancelSwap} />;
     case "error":
       return <ErrorCard data={data} />;
     default:

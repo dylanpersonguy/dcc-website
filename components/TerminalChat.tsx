@@ -8,11 +8,15 @@ import {
   User,
   Loader2,
   ArrowUp,
+  Star,
+  X,
 } from "lucide-react";
 import { processCommand, type TerminalMessage } from "@/lib/terminal";
+import { getTransactionById, checkNodeHealth } from "@/lib/blockchain";
+import { executeSwap } from "@/lib/wallet";
 import { useI18n } from "@/lib/i18n";
 import { useWallet } from "@/lib/wallet-context";
-import TerminalSettings, { DEFAULT_SETTINGS, type TerminalSettingsState } from "@/components/TerminalSettings";
+import TerminalSettings, { DEFAULT_SETTINGS, loadPersistedSettings, persistSettings, type TerminalSettingsState } from "@/components/TerminalSettings";
 import { TerminalDataCard } from "@/components/terminal/TerminalCards";
 
 const SUGGESTED_ACTIONS = [
@@ -160,6 +164,7 @@ interface TerminalChatProps {
 }
 
 const HISTORY_KEY = "dcc-chat-history";
+const PINS_KEY = "dcc-pinned-commands";
 const MAX_PERSISTED = 200;
 
 function loadPersistedMessages(): TerminalMessage[] {
@@ -185,10 +190,47 @@ export default function TerminalChat({ initialCommand, onCommandConsumed }: Term
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [settings, setSettings] = useState<TerminalSettingsState>(DEFAULT_SETTINGS);
+
+  // Load persisted settings on mount
+  useEffect(() => {
+    setSettings(loadPersistedSettings());
+  }, []);
+
+  const updateSettings = useCallback((s: TerminalSettingsState) => {
+    setSettings(s);
+    persistSettings(s);
+  }, []);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const hasHandledInitial = useRef(false);
   const hasLoadedHistory = useRef(false);
+  const [nodeOnline, setNodeOnline] = useState(true);
+
+  // Pinned / favorite commands
+  const [pinnedCommands, setPinnedCommands] = useState<string[]>(() => {
+    if (typeof window === "undefined") return [];
+    try {
+      const raw = localStorage.getItem(PINS_KEY);
+      return raw ? (JSON.parse(raw) as string[]) : [];
+    } catch { return []; }
+  });
+
+  const pinCommand = useCallback((cmd: string) => {
+    setPinnedCommands((prev) => {
+      if (prev.includes(cmd)) return prev;
+      const next = [...prev, cmd].slice(-12);
+      localStorage.setItem(PINS_KEY, JSON.stringify(next));
+      return next;
+    });
+  }, []);
+
+  const unpinCommand = useCallback((cmd: string) => {
+    setPinnedCommands((prev) => {
+      const next = prev.filter((c) => c !== cmd);
+      localStorage.setItem(PINS_KEY, JSON.stringify(next));
+      return next;
+    });
+  }, []);
 
   // Restore chat history from localStorage on mount
   useEffect(() => {
@@ -204,6 +246,139 @@ export default function TerminalChat({ initialCommand, onCommandConsumed }: Term
     if (messages.length > 0) persistMessages(messages);
   }, [messages]);
 
+  // Track broadcast transactions — poll for confirmation
+  const trackedTxs = useRef<Set<string>>(new Set());
+  useEffect(() => {
+    const pending = messages.filter((m) => {
+      if (m.role !== "assistant" || !m.data) return false;
+      const d = m.data as Record<string, unknown>;
+      const txId = d.txId as string | undefined;
+      return txId && d.status === "Broadcast" && !trackedTxs.current.has(txId);
+    });
+    if (pending.length === 0) return;
+
+    for (const msg of pending) {
+      const txId = (msg.data as Record<string, unknown>).txId as string;
+      trackedTxs.current.add(txId);
+
+      let attempts = 0;
+      const poll = setInterval(async () => {
+        attempts++;
+        try {
+          const tx = await getTransactionById(txId);
+          if (tx && tx.id) {
+            clearInterval(poll);
+            setMessages((prev) =>
+              prev.map((m) => {
+                if (m.id !== msg.id) return m;
+                const data = { ...(m.data as Record<string, unknown>), status: "Confirmed ✓" };
+                return { ...m, data, content: m.content.replace("Swap executed", "Swap confirmed").replace("Broadcast", "Confirmed") };
+              })
+            );
+          }
+        } catch {
+          if (attempts >= 10) {
+            clearInterval(poll);
+            setMessages((prev) =>
+              prev.map((m) => {
+                if (m.id !== msg.id) return m;
+                const data = { ...(m.data as Record<string, unknown>), status: "Unconfirmed" };
+                return { ...m, data };
+              })
+            );
+          }
+        }
+      }, 3000);
+
+      // Cleanup after 30s max
+      setTimeout(() => clearInterval(poll), 31000);
+    }
+  }, [messages]);
+
+  // Swap countdown — auto-execute pending swaps after 5s countdown
+  const pendingSwapTimers = useRef<Map<string, NodeJS.Timeout>>(new Map());
+  const cancelledSwaps = useRef<Set<string>>(new Set());
+
+  const cancelPendingSwap = useCallback((msgId: string) => {
+    cancelledSwaps.current.add(msgId);
+    const timer = pendingSwapTimers.current.get(msgId);
+    if (timer) {
+      clearTimeout(timer);
+      pendingSwapTimers.current.delete(msgId);
+    }
+    setMessages((prev) =>
+      prev.map((m) => {
+        if (m.id !== msgId) return m;
+        const d = { ...(m.data as Record<string, unknown>) };
+        delete d.pendingSwap;
+        return { ...m, data: { ...d, status: "Cancelled" }, content: m.content.replace("executing shortly…", "cancelled — showing quote only") };
+      })
+    );
+  }, []);
+
+  useEffect(() => {
+    const pendingMsgs = messages.filter((m) => {
+      if (m.role !== "assistant" || !m.data) return false;
+      const d = m.data as Record<string, unknown>;
+      return d.pendingSwap && !pendingSwapTimers.current.has(m.id) && !cancelledSwaps.current.has(m.id);
+    });
+    if (pendingMsgs.length === 0) return;
+
+    for (const msg of pendingMsgs) {
+      const d = msg.data as Record<string, unknown>;
+      const swap = d.pendingSwap as {
+        tokenIn: string; tokenOut: string; amount: number; minReceived: number;
+        assetIdIn: string | null; assetIdOut: string | null; decimalsIn: number; decimalsOut: number;
+      };
+
+      // Start 5-second countdown with ticking updates
+      let countdown = 5;
+      const tick = () => {
+        if (cancelledSwaps.current.has(msg.id)) return;
+        countdown--;
+        if (countdown > 0) {
+          setMessages((prev) =>
+            prev.map((m) =>
+              m.id === msg.id
+                ? { ...m, data: { ...(m.data as Record<string, unknown>), countdown } }
+                : m
+            )
+          );
+          pendingSwapTimers.current.set(msg.id, setTimeout(tick, 1000));
+        } else {
+          // Execute swap
+          pendingSwapTimers.current.delete(msg.id);
+          const seed = getSeed();
+          if (!seed) return;
+          executeSwap(
+            seed, swap.tokenIn, swap.tokenOut, swap.amount, swap.minReceived,
+            swap.assetIdIn, swap.assetIdOut, swap.decimalsIn, swap.decimalsOut,
+          ).then((result) => {
+            setMessages((prev) =>
+              prev.map((m) => {
+                if (m.id !== msg.id) return m;
+                const old = m.data as Record<string, unknown>;
+                if (result.success) {
+                  const updated = { ...old, txId: result.id, status: "Broadcast", countdown: undefined, pendingSwap: undefined };
+                  return { ...m, content: `⚡ **Swap executed!**\n\n**${swap.amount} ${swap.tokenIn} → ${swap.tokenOut}**\nTransaction ID: \`${result.id}\``, data: updated };
+                }
+                return { ...m, content: `❌ Swap failed: ${result.error}`, data: { ...old, status: "Failed", countdown: undefined, pendingSwap: undefined } };
+              })
+            );
+          });
+        }
+      };
+
+      // Set initial countdown value and start ticking
+      setMessages((prev) =>
+        prev.map((m) =>
+          m.id === msg.id ? { ...m, data: { ...(m.data as Record<string, unknown>), countdown: 5 } } : m
+        )
+      );
+      pendingSwapTimers.current.set(msg.id, setTimeout(tick, 1000));
+    }
+  }, [messages, getSeed]);
+
   const scrollToBottom = useCallback(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, []);
@@ -214,6 +389,15 @@ export default function TerminalChat({ initialCommand, onCommandConsumed }: Term
 
   useEffect(() => {
     inputRef.current?.focus();
+  }, []);
+
+  // Node health check — poll every 30s
+  useEffect(() => {
+    checkNodeHealth().then(setNodeOnline);
+    const iv = setInterval(() => {
+      checkNodeHealth().then(setNodeOnline);
+    }, 30000);
+    return () => clearInterval(iv);
   }, []);
 
   // Command history for up/down arrow navigation
@@ -235,6 +419,9 @@ export default function TerminalChat({ initialCommand, onCommandConsumed }: Term
     "/nfts": "My NFTs",
     "/fees": "Fee estimate",
     "/export": "Export chat",
+    "/pin": "Pin command",
+    "/unpin": "Unpin command",
+    "/pins": "Show pinned",
   };
 
   // Global keyboard shortcuts
@@ -325,6 +512,36 @@ export default function TerminalChat({ initialCommand, onCommandConsumed }: Term
     // Resolve slash commands
     const slashCmd = slashCommands[value.toLowerCase()];
     if (slashCmd) value = slashCmd;
+
+    // Handle pin/unpin locally
+    const pinMatch = value.match(/^pin\s*(?:command\s*)?(.+)/i);
+    const unpinMatch = value.match(/^unpin\s*(?:command\s*)?(.+)/i);
+    if (pinMatch) {
+      const cmd = pinMatch[1].trim().replace(/^["']|["']$/g, "");
+      pinCommand(cmd);
+      const userMsg: TerminalMessage = { id: crypto.randomUUID(), role: "user", content: value, timestamp: Date.now() };
+      const assistantMsg: TerminalMessage = { id: crypto.randomUUID(), role: "assistant", content: `📌 Pinned: **${cmd}**`, type: "text", timestamp: Date.now() };
+      setMessages((prev) => [...prev, userMsg, assistantMsg]);
+      setInput("");
+      return;
+    }
+    if (unpinMatch) {
+      const cmd = unpinMatch[1].trim().replace(/^["']|["']$/g, "");
+      unpinCommand(cmd);
+      const userMsg: TerminalMessage = { id: crypto.randomUUID(), role: "user", content: value, timestamp: Date.now() };
+      const assistantMsg: TerminalMessage = { id: crypto.randomUUID(), role: "assistant", content: `🗑️ Unpinned: **${cmd}**`, type: "text", timestamp: Date.now() };
+      setMessages((prev) => [...prev, userMsg, assistantMsg]);
+      setInput("");
+      return;
+    }
+    if (/^show\s*pinned$/i.test(value)) {
+      const userMsg: TerminalMessage = { id: crypto.randomUUID(), role: "user", content: value, timestamp: Date.now() };
+      const list = pinnedCommands.length > 0 ? pinnedCommands.map((c, i) => `${i + 1}. **${c}**`).join("\n") : "No pinned commands yet. Use **pin <command>** to add.";
+      const assistantMsg: TerminalMessage = { id: crypto.randomUUID(), role: "assistant", content: `📌 **Pinned Commands**\n\n${list}`, type: "text", timestamp: Date.now() };
+      setMessages((prev) => [...prev, userMsg, assistantMsg]);
+      setInput("");
+      return;
+    }
 
     // Batch operations — split on && or ;
     const commands = value.includes("&&") ? value.split("&&").map(c => c.trim()).filter(Boolean)
@@ -447,6 +664,22 @@ export default function TerminalChat({ initialCommand, onCommandConsumed }: Term
       {/* Messages area */}
       <div className="flex-1 overflow-y-auto px-4 md:px-6 py-6">
         <div className="max-w-[760px] mx-auto">
+          {/* Offline banner */}
+          <AnimatePresence>
+            {!nodeOnline && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+                className="mb-4 px-4 py-3 rounded-xl border border-red-500/20 bg-red-500/5 flex items-center gap-3"
+              >
+                <div className="w-2 h-2 rounded-full bg-red-400 animate-pulse" />
+                <p className="text-[12px] text-red-400 font-medium">
+                  Node unreachable — blockchain queries may fail. Retrying…
+                </p>
+              </motion.div>
+            )}
+          </AnimatePresence>
           {/* Welcome state */}
           <AnimatePresence>
             {showWelcome && (
@@ -531,7 +764,7 @@ export default function TerminalChat({ initialCommand, onCommandConsumed }: Term
                     }`}
                     dangerouslySetInnerHTML={{ __html: formatMarkdown(msg.content) }}
                   />
-                  {msg.data && <TerminalDataCard type={msg.type} data={msg.data} />}
+                  {msg.data && <TerminalDataCard type={msg.type} data={{ ...msg.data, msgId: msg.id }} onCancelSwap={cancelPendingSwap} />}
                   {msg.role === "assistant" && (
                     <FollowUpSuggestions type={msg.type} data={msg.data} onSelect={handleSubmit} />
                   )}
@@ -586,8 +819,30 @@ export default function TerminalChat({ initialCommand, onCommandConsumed }: Term
       {/* Input area */}
       <div className="border-t border-white/[0.06] bg-background/80 backdrop-blur-xl px-4 md:px-6 py-4">
         <div className="max-w-[760px] mx-auto">
+          {/* Pinned commands */}
+          {pinnedCommands.length > 0 && (
+            <div className="flex items-center gap-1.5 mb-2 overflow-x-auto scrollbar-none">
+              <Star className="w-3 h-3 text-yellow-400/50 flex-shrink-0" />
+              {pinnedCommands.map((cmd) => (
+                <div key={cmd} className="flex items-center gap-0.5 flex-shrink-0 group">
+                  <button
+                    onClick={() => handleSubmit(cmd)}
+                    className="px-2 py-1 rounded-lg text-[10px] font-medium bg-white/[0.03] border border-white/[0.06] text-muted hover:text-foreground hover:border-primary/20 hover:bg-primary/5 transition-all"
+                  >
+                    {cmd.length > 24 ? cmd.slice(0, 22) + "…" : cmd}
+                  </button>
+                  <button
+                    onClick={() => unpinCommand(cmd)}
+                    className="p-0.5 rounded text-muted/20 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-all"
+                  >
+                    <X className="w-2.5 h-2.5" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
           <div className="flex items-center gap-2">
-            <TerminalSettings settings={settings} onSettingsChange={setSettings} />
+            <TerminalSettings settings={settings} onSettingsChange={updateSettings} />
             <div className="relative flex-1 group">
               <div className="absolute -inset-0.5 bg-gradient-to-r from-primary/20 via-blue-500/10 to-purple-500/20 rounded-xl opacity-0 group-focus-within:opacity-100 blur-sm transition-opacity duration-300" />
               <textarea
