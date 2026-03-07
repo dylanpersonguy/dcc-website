@@ -32,6 +32,13 @@ import {
   getTokenInfo,
   getProtocolStatus,
 } from "./amm";
+import {
+  executeSwap,
+  addLiquidity,
+  removeLiquidity,
+  sendTransfer,
+  type TxResult,
+} from "./wallet";
 
 export interface TerminalMessage {
   id: string;
@@ -44,6 +51,12 @@ export interface TerminalMessage {
 
 interface CommandMatch {
   handler: () => Promise<{ content: string; data?: Record<string, unknown>; type: TerminalMessage["type"] }>;
+}
+
+interface WalletInfo {
+  isConnected: boolean;
+  address?: string;
+  seed?: string | null;
 }
 
 function extractAddress(input: string): string | null {
@@ -101,7 +114,7 @@ function formatObj(obj: Record<string, unknown>): Record<string, unknown> {
   return out;
 }
 
-function matchCommand(input: string): CommandMatch | null {
+function matchCommand(input: string, wallet?: WalletInfo): CommandMatch | null {
   const lower = input.toLowerCase().trim();
 
   // ═══════════════════════════════════════════
@@ -622,7 +635,7 @@ function matchCommand(input: string): CommandMatch | null {
   }
 
   // Generic swap/AMM info
-  if (/\b(swap|amm|dex|trade|trading)\b/.test(lower) && !/\b(help|quote|recent|history|status)\b/.test(lower)) {
+  if (/\b(swap|amm|dex|trade|trading)\b/.test(lower) && !/\b(help|quote|recent|history|status|execute|confirm|send)\b/.test(lower)) {
     return {
       handler: async () => {
         let content = `**DCC Swap — Automated Market Maker**\n\n`;
@@ -634,6 +647,225 @@ function matchCommand(input: string): CommandMatch | null {
         content += `• On-chain contract: \`3Da7xwRRtXfkA46jaKTYb75Usd2ZNWdY6HX\`\n\n`;
         content += `Try: **"List pools"**, **"Swap quote 100 DCC to USDT"**, **"Pool DCC_USDT"**, **"Recent swaps"**`;
         return { content, type: "text" };
+      },
+    };
+  }
+
+  // ═══════════════════════════════════════════
+  // SIGNING / WALLET COMMANDS
+  // ═══════════════════════════════════════════
+
+  // Wallet status
+  if (/\b(wallet|my\s*wallet|account|connected)\b/.test(lower) && !/\b(connect|disconnect)\b/.test(lower)) {
+    return {
+      handler: async () => {
+        if (!wallet?.isConnected || !wallet.address) {
+          return {
+            content: `No wallet connected. Click the **Connect** button in the navbar to connect your DCC wallet with a seed phrase.`,
+            type: "text",
+          };
+        }
+        const bal = await getAddressBalance(wallet.address);
+        return {
+          content: `Your connected wallet:`,
+          data: {
+            address: wallet.address,
+            available: bal.available.toFixed(8) + " DCC",
+            regular: bal.regular.toFixed(8) + " DCC",
+            effective: bal.effective.toFixed(8) + " DCC",
+            generating: bal.generating.toFixed(8) + " DCC",
+          },
+          type: "balance",
+        };
+      },
+    };
+  }
+
+  // Execute swap — "execute swap 100 DCC to USDT", "swap 50 DCC for USDT confirm"
+  if (
+    /\b(execute|confirm|send|do|perform)\b/.test(lower) &&
+    /\b(swap|trade|exchange)\b/.test(lower)
+  ) {
+    const amount = extractAmount(input);
+    const tokens = input.match(/\b(DCC|USDT|USDC|SOL|BTC|ETH)\b/gi);
+    return {
+      handler: async () => {
+        if (!wallet?.isConnected || !wallet.seed) {
+          return {
+            content: `⚠️ Wallet not connected. Please connect your wallet first using the **Connect** button in the navbar.`,
+            type: "error",
+          };
+        }
+        if (!amount || !tokens || tokens.length < 2) {
+          return {
+            content: `Please specify amount and tokens, e.g. **"Execute swap 100 DCC to USDT"**`,
+            type: "text",
+          };
+        }
+        const tokenIn = tokens[0].toUpperCase();
+        const tokenOut = tokens[1].toUpperCase();
+        // Get a quote first
+        const quote = await getSwapQuote(tokenIn, tokenOut, amount);
+        const minReceived = quote.outputAmount * 0.995; // 0.5% slippage tolerance
+        // For now use null asset IDs for native DCC, or token name matching
+        const assetIdIn = tokenIn === "DCC" ? null : tokenIn;
+        const assetIdOut = tokenOut === "DCC" ? null : tokenOut;
+        const result = await executeSwap(
+          wallet.seed,
+          tokenIn,
+          tokenOut,
+          amount,
+          minReceived,
+          assetIdIn,
+          assetIdOut,
+        );
+        if (result.success) {
+          return {
+            content: `✅ Swap executed successfully!\n\n**${amount} ${tokenIn} → ${tokenOut}**\nTransaction ID: \`${result.id}\``,
+            data: {
+              txId: result.id,
+              input: `${amount} ${tokenIn}`,
+              estimatedOutput: `~${quote.outputAmount} ${tokenOut}`,
+              slippageTolerance: "0.5%",
+              status: "Broadcast",
+            },
+            type: "swap",
+          };
+        }
+        return {
+          content: `❌ Swap failed: ${result.error}`,
+          type: "error",
+        };
+      },
+    };
+  }
+
+  // Add liquidity — "add liquidity DCC_USDT 100 50"
+  if (/\b(add)\b/.test(lower) && /\b(liquidity|lp)\b/.test(lower)) {
+    const pool = extractPoolKey(input);
+    const amounts = input.match(/(\d+(?:\.\d+)?)/g);
+    return {
+      handler: async () => {
+        if (!wallet?.isConnected || !wallet.seed) {
+          return {
+            content: `⚠️ Wallet not connected. Please connect your wallet first using the **Connect** button in the navbar.`,
+            type: "error",
+          };
+        }
+        if (!pool || !amounts || amounts.length < 2) {
+          return {
+            content: `Please specify pool and amounts, e.g. **"Add liquidity DCC_USDT 100 50"** (100 DCC + 50 USDT)`,
+            type: "text",
+          };
+        }
+        const amount0 = parseFloat(amounts[0]);
+        const amount1 = parseFloat(amounts[1]);
+        const [token0, token1] = pool.split("_");
+        const assetId0 = token0 === "DCC" ? null : token0;
+        const assetId1 = token1 === "DCC" ? null : token1;
+        const result = await addLiquidity(
+          wallet.seed,
+          pool,
+          amount0,
+          amount1,
+          assetId0,
+          assetId1,
+        );
+        if (result.success) {
+          return {
+            content: `✅ Liquidity added to **${pool}**!\nTransaction ID: \`${result.id}\``,
+            data: {
+              txId: result.id,
+              pool,
+              deposit: `${amount0} ${token0} + ${amount1} ${token1}`,
+              status: "Broadcast",
+            },
+            type: "pool",
+          };
+        }
+        return {
+          content: `❌ Add liquidity failed: ${result.error}`,
+          type: "error",
+        };
+      },
+    };
+  }
+
+  // Remove liquidity — "remove liquidity DCC_USDT 10 [lpAssetId]"
+  if (/\b(remove|withdraw)\b/.test(lower) && /\b(liquidity|lp)\b/.test(lower)) {
+    const pool = extractPoolKey(input);
+    const amount = extractAmount(input);
+    const assetId = extractAssetId(input);
+    return {
+      handler: async () => {
+        if (!wallet?.isConnected || !wallet.seed) {
+          return {
+            content: `⚠️ Wallet not connected. Please connect your wallet first using the **Connect** button in the navbar.`,
+            type: "error",
+          };
+        }
+        if (!pool || !amount || !assetId) {
+          return {
+            content: `Please specify pool, LP token amount, and LP asset ID, e.g. **"Remove liquidity DCC_USDT 10 [lpAssetId]"**`,
+            type: "text",
+          };
+        }
+        const result = await removeLiquidity(wallet.seed, pool, amount, assetId);
+        if (result.success) {
+          return {
+            content: `✅ Liquidity removed from **${pool}**!\nTransaction ID: \`${result.id}\``,
+            data: {
+              txId: result.id,
+              pool,
+              lpTokensBurned: amount,
+              status: "Broadcast",
+            },
+            type: "pool",
+          };
+        }
+        return {
+          content: `❌ Remove liquidity failed: ${result.error}`,
+          type: "error",
+        };
+      },
+    };
+  }
+
+  // Transfer / send — "send 10 DCC to 3P..."
+  if (/\b(send|transfer)\b/.test(lower) && /\b(dcc|to)\b/.test(lower)) {
+    const amount = extractAmount(input);
+    const addr = extractAddress(input);
+    return {
+      handler: async () => {
+        if (!wallet?.isConnected || !wallet.seed) {
+          return {
+            content: `⚠️ Wallet not connected. Please connect your wallet first using the **Connect** button in the navbar.`,
+            type: "error",
+          };
+        }
+        if (!amount || !addr) {
+          return {
+            content: `Please specify amount and recipient, e.g. **"Send 10 DCC to 3P..."**`,
+            type: "text",
+          };
+        }
+        const result = await sendTransfer(wallet.seed, addr, amount);
+        if (result.success) {
+          return {
+            content: `✅ Transfer successful!\nSent **${amount} DCC** to \`${addr}\`\nTransaction ID: \`${result.id}\``,
+            data: {
+              txId: result.id,
+              amount: `${amount} DCC`,
+              recipient: addr,
+              status: "Broadcast",
+            },
+            type: "transaction",
+          };
+        }
+        return {
+          content: `❌ Transfer failed: ${result.error}`,
+          type: "error",
+        };
       },
     };
   }
@@ -673,7 +905,13 @@ function matchCommand(input: string): CommandMatch | null {
           `• **"Recent swaps"** — Latest trades\n` +
           `• **"Positions 3P..."** — LP positions\n` +
           `• **"Token info [assetId]"** — Token metadata\n` +
-          `• **"Protocol status"** — AMM contract state`,
+          `• **"Protocol status"** — AMM contract state\n\n` +
+          `**✍ Signing (requires wallet)**\n` +
+          `• **"Wallet"** — View connected wallet & balance\n` +
+          `• **"Execute swap 100 DCC to USDT"** — Sign & execute a swap\n` +
+          `• **"Add liquidity DCC_USDT 100 50"** — Provide liquidity\n` +
+          `• **"Remove liquidity DCC_USDT 10 [lpId]"** — Withdraw LP\n` +
+          `• **"Send 10 DCC to 3P..."** — Transfer tokens`,
         type: "text",
       }),
     };
@@ -683,9 +921,10 @@ function matchCommand(input: string): CommandMatch | null {
 }
 
 export async function processCommand(
-  input: string
+  input: string,
+  wallet?: WalletInfo,
 ): Promise<Omit<TerminalMessage, "id" | "role" | "timestamp">> {
-  const command = matchCommand(input);
+  const command = matchCommand(input, wallet);
 
   if (!command) {
     return {
@@ -693,7 +932,8 @@ export async function processCommand(
         `I'm not sure what you're asking. Try something like:\n\n` +
         `**⛓ Blockchain:** "Block height", "Latest block", "Balance of 3P..."\n` +
         `**🌉 Bridge:** "Bridge quote 10 SOL", "Bridge fees", "Bridge limits"\n` +
-        `**💱 Swap:** "List pools", "Swap quote 100 DCC to USDT", "Recent swaps"\n\n` +
+        `**💱 Swap:** "List pools", "Swap quote 100 DCC to USDT", "Recent swaps"\n` +
+        `**✍ Sign:** "Execute swap 100 DCC to USDT", "Send 10 DCC to 3P..."\n\n` +
         `Type **"help"** for a full list of commands.`,
       type: "text",
     };

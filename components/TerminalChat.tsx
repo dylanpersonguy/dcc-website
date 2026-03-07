@@ -19,13 +19,14 @@ import {
 } from "lucide-react";
 import { processCommand, type TerminalMessage } from "@/lib/terminal";
 import { useI18n } from "@/lib/i18n";
+import { useWallet } from "@/lib/wallet-context";
 
 const SUGGESTED_COMMANDS = [
   { icon: Blocks, label: "Block Height", command: "What's the current block height?" },
   { icon: Activity, label: "Latest Block", command: "Show me the latest block" },
   { icon: ArrowLeftRight, label: "Bridge", command: "Tell me about the SOL to DCC bridge" },
   { icon: Repeat, label: "Swap Pools", command: "List all liquidity pools" },
-  { icon: Wallet, label: "Network Status", command: "Show me the network status" },
+  { icon: Wallet, label: "My Wallet", command: "Wallet" },
   { icon: HelpCircle, label: "All Commands", command: "Help" },
 ];
 
@@ -90,6 +91,7 @@ function formatMarkdown(text: string): string {
 
 export default function TerminalChat() {
   const { t } = useI18n();
+  const { account, isConnected, getSeed } = useWallet();
   const [messages, setMessages] = useState<TerminalMessage[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -123,7 +125,11 @@ export default function TerminalChat() {
     setInput("");
     setIsLoading(true);
 
-    const result = await processCommand(value);
+    const result = await processCommand(value, {
+      isConnected,
+      address: account?.address,
+      seed: getSeed(),
+    });
 
     const assistantMsg: TerminalMessage = {
       id: crypto.randomUUID(),

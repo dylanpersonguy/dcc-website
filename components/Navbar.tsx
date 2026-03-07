@@ -7,6 +7,7 @@ import { Menu, X, Sun, Moon, Globe } from "lucide-react";
 import { NAV_LINKS } from "@/lib/constants";
 import { useI18n, LOCALE_LABELS, type Locale } from "@/lib/i18n";
 import { useTheme } from "@/lib/theme";
+import WalletConnect from "@/components/WalletConnect";
 
 export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -114,6 +115,11 @@ export default function Navbar() {
               {theme === "dark" ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
             </button>
 
+            {/* Wallet Connect */}
+            <div className="ml-2">
+              <WalletConnect />
+            </div>
+
             <div className="ml-3">
               <a
                 href="#cta"
@@ -185,6 +191,11 @@ export default function Navbar() {
                     {LOCALE_LABELS[l]}
                   </button>
                 ))}
+              </div>
+
+              {/* Mobile wallet connect */}
+              <div className="pt-3 px-3">
+                <WalletConnect />
               </div>
 
               <div className="pt-4">
