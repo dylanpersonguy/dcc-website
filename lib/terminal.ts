@@ -96,7 +96,7 @@ export interface TerminalMessage {
   role: "user" | "assistant";
   content: string;
   data?: Record<string, unknown>;
-  type?: "text" | "block" | "block-txs" | "balance" | "transaction" | "tx-history" | "network" | "peers" | "bridge" | "pool" | "swap" | "automation" | "error";
+  type?: "text" | "block" | "block-txs" | "balance" | "transaction" | "tx-history" | "network" | "peers" | "bridge" | "pool" | "swap" | "automation" | "token-detail" | "error";
   timestamp: number;
 }
 
@@ -1099,9 +1099,18 @@ function matchCommand(input: string, wallet?: WalletInfo, options?: TerminalOpti
         }
         const token = await getTokenInfo(assetId);
         return {
-          content: `Token **${token.name || assetId}**:`,
-          data: formatObj(token),
-          type: "text",
+          content: `🪙 **${token.name || assetId}** — Token Details`,
+          data: {
+            name: token.name || assetId,
+            assetId: token.assetId || assetId,
+            description: token.description || "",
+            quantity: token.quantity || 0,
+            decimals: token.decimals ?? 0,
+            reissuable: !!token.reissuable,
+            issuer: token.issuer || "",
+            issueHeight: token.issueHeight || 0,
+          },
+          type: "token-detail",
         };
       },
     };

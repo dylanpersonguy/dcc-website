@@ -1,0 +1,74 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" aria-label="DecentralChain news and updates hub">
+  <defs>
+    <linearGradient id="p4fs_bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0B0F14"/>
+      <stop offset="100%" stop-color="#111827"/>
+    </linearGradient>
+    <linearGradient id="p4fs_acc" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#00E5FF"/>
+      <stop offset="50%" stop-color="#6C63FF"/>
+      <stop offset="100%" stop-color="#14F195"/>
+    </linearGradient>
+    <linearGradient id="p4fs_pulse" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#00E5FF" stop-opacity="0.6"/>
+      <stop offset="100%" stop-color="#6C63FF" stop-opacity="0.1"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#p4fs_bg)"/>
+  <!-- Grid pattern -->
+  <g opacity="0.04" stroke="white" stroke-width="1">
+    <line x1="200" y1="0" x2="200" y2="630"/><line x1="400" y1="0" x2="400" y2="630"/>
+    <line x1="600" y1="0" x2="600" y2="630"/><line x1="800" y1="0" x2="800" y2="630"/>
+    <line x1="1000" y1="0" x2="1000" y2="630"/>
+    <line x1="0" y1="126" x2="1200" y2="126"/><line x1="0" y1="252" x2="1200" y2="252"/>
+    <line x1="0" y1="378" x2="1200" y2="378"/><line x1="0" y1="504" x2="1200" y2="504"/>
+  </g>
+  <!-- Signal broadcast circles -->
+  <circle cx="600" cy="315" r="220" fill="none" stroke="url(#p4fs_acc)" stroke-width="1" opacity="0.12"/>
+  <circle cx="600" cy="315" r="170" fill="none" stroke="url(#p4fs_acc)" stroke-width="1" opacity="0.18"/>
+  <circle cx="600" cy="315" r="120" fill="none" stroke="url(#p4fs_acc)" stroke-width="1.5" opacity="0.25"/>
+  <circle cx="600" cy="315" r="70" fill="none" stroke="url(#p4fs_acc)" stroke-width="2" opacity="0.35"/>
+  <!-- Central news icon -->
+  <rect x="565" y="280" width="70" height="70" rx="10" fill="#0B0F14" stroke="#00E5FF" stroke-width="2"/>
+  <rect x="578" y="296" width="44" height="6" rx="2" fill="#00E5FF"/>
+  <rect x="578" y="308" width="44" height="4" rx="2" fill="#6C63FF" opacity="0.7"/>
+  <rect x="578" y="318" width="30" height="4" rx="2" fill="#6C63FF" opacity="0.5"/>
+  <rect x="578" y="328" width="44" height="4" rx="2" fill="#14F195" opacity="0.5"/>
+  <rect x="578" y="338" width="20" height="4" rx="2" fill="#14F195" opacity="0.3"/>
+  <!-- Topic nodes -->
+  <g>
+    <rect x="200" y="140" width="140" height="50" rx="8" fill="#0B0F14" stroke="#00E5FF" stroke-width="1"/>
+    <text x="270" y="170" text-anchor="middle" fill="#00E5FF" font-family="sans-serif" font-size="12" font-weight="600">UPGRADES</text>
+    <line x1="340" y1="165" x2="530" y2="290" stroke="#00E5FF" stroke-width="0.8" opacity="0.3"/>
+  </g>
+  <g>
+    <rect x="860" y="140" width="140" height="50" rx="8" fill="#0B0F14" stroke="#6C63FF" stroke-width="1"/>
+    <text x="930" y="170" text-anchor="middle" fill="#6C63FF" font-family="sans-serif" font-size="12" font-weight="600">PARTNERSHIPS</text>
+    <line x1="860" y1="165" x2="670" y2="290" stroke="#6C63FF" stroke-width="0.8" opacity="0.3"/>
+  </g>
+  <g>
+    <rect x="130" y="290" width="140" height="50" rx="8" fill="#0B0F14" stroke="#14F195" stroke-width="1"/>
+    <text x="200" y="320" text-anchor="middle" fill="#14F195" font-family="sans-serif" font-size="12" font-weight="600">GOVERNANCE</text>
+    <line x1="270" y1="315" x2="530" y2="315" stroke="#14F195" stroke-width="0.8" opacity="0.3"/>
+  </g>
+  <g>
+    <rect x="930" y="290" width="140" height="50" rx="8" fill="#0B0F14" stroke="#FF6B6B" stroke-width="1"/>
+    <text x="1000" y="320" text-anchor="middle" fill="#FF6B6B" font-family="sans-serif" font-size="12" font-weight="600">MILESTONES</text>
+    <line x1="930" y1="315" x2="670" y2="315" stroke="#FF6B6B" stroke-width="0.8" opacity="0.3"/>
+  </g>
+  <g>
+    <rect x="200" y="440" width="140" height="50" rx="8" fill="#0B0F14" stroke="#00E5FF" stroke-width="1"/>
+    <text x="270" y="470" text-anchor="middle" fill="#00E5FF" font-family="sans-serif" font-size="12" font-weight="600">DCC TOKEN</text>
+    <line x1="340" y1="465" x2="530" y2="350" stroke="#00E5FF" stroke-width="0.8" opacity="0.3"/>
+  </g>
+  <g>
+    <rect x="860" y="440" width="140" height="50" rx="8" fill="#0B0F14" stroke="#6C63FF" stroke-width="1"/>
+    <text x="930" y="470" text-anchor="middle" fill="#6C63FF" font-family="sans-serif" font-size="12" font-weight="600">ECOSYSTEM</text>
+    <line x1="860" y1="465" x2="670" y2="350" stroke="#6C63FF" stroke-width="0.8" opacity="0.3"/>
+  </g>
+  <!-- Title -->
+  <text x="600" y="70" text-anchor="middle" fill="white" font-family="sans-serif" font-size="36" font-weight="700">DecentralChain News &amp; Updates</text>
+  <text x="600" y="100" text-anchor="middle" fill="#A0AEC0" font-family="sans-serif" font-size="16">Network upgrades, partnerships, governance, and ecosystem milestones</text>
+  <!-- Accent bar -->
+  <rect x="200" y="580" width="800" height="3" rx="1.5" fill="url(#p4fs_acc)" opacity="0.6"/>
+</svg>

@@ -845,6 +845,91 @@ export function GenericDataCard({ data }: { data: Record<string, unknown> }) {
   );
 }
 
+/* ─── TOKEN DETAIL CARD ─── */
+export function TokenDetailCard({ data }: { data: Record<string, unknown> }) {
+  const name = data.name as string || "Unknown";
+  const assetId = data.assetId as string || "";
+  const description = data.description as string || "";
+  const quantity = data.quantity as number || 0;
+  const decimals = data.decimals as number || 0;
+  const reissuable = data.reissuable as boolean;
+  const issuer = data.issuer as string || "";
+  const issueHeight = data.issueHeight as number || 0;
+  const supply = quantity / Math.pow(10, decimals);
+
+  return (
+    <CardShell accent="purple">
+      <CardHeader
+        icon={<Coins className="w-3.5 h-3.5 text-purple-400" />}
+        title={name}
+        emoji="🪙"
+        badge={
+          <span className="px-2 py-0.5 rounded-md bg-purple-500/10 text-purple-400 text-[11px] font-medium">
+            Token
+          </span>
+        }
+      />
+      <div className="p-3 space-y-2">
+        {assetId && (
+          <motion.div variants={fadeUp} className="flex items-center gap-2 px-3 py-2 rounded-lg bg-white/[0.02]">
+            <div className="min-w-0 flex-1">
+              <p className="text-[10px] uppercase tracking-wider text-muted/70 font-medium">Asset ID</p>
+              <div className="flex items-center gap-1">
+                <p className="text-[12px] text-foreground font-mono truncate">{assetId}</p>
+                <CopyBtn text={assetId} />
+              </div>
+            </div>
+          </motion.div>
+        )}
+        {description && (
+          <Stat label="Description" value={description} icon={<Hash className="w-3.5 h-3.5" />} color="purple" />
+        )}
+        <div className="grid grid-cols-2 gap-2">
+          <Stat
+            label="Total Supply"
+            value={supply >= 1e6 ? `${(supply / 1e6).toFixed(2)}M` : supply.toLocaleString(undefined, { maximumFractionDigits: decimals })}
+            icon={<TrendingUp className="w-3.5 h-3.5" />}
+            color="blue"
+          />
+          <Stat
+            label="Decimals"
+            value={String(decimals)}
+            icon={<Hash className="w-3.5 h-3.5" />}
+            color="primary"
+          />
+        </div>
+        <div className="grid grid-cols-2 gap-2">
+          <Stat
+            label="Reissuable"
+            value={reissuable ? "Yes" : "No"}
+            icon={reissuable ? <CheckCircle2 className="w-3.5 h-3.5" /> : <XCircle className="w-3.5 h-3.5" />}
+            color={reissuable ? "green" : "red"}
+          />
+          {issueHeight > 0 && (
+            <Stat
+              label="Issue Height"
+              value={issueHeight.toLocaleString()}
+              icon={<Blocks className="w-3.5 h-3.5" />}
+              color="yellow"
+            />
+          )}
+        </div>
+        {issuer && (
+          <motion.div variants={fadeUp} className="flex items-center gap-2 px-3 py-2 rounded-lg bg-white/[0.02]">
+            <div className="min-w-0 flex-1">
+              <p className="text-[10px] uppercase tracking-wider text-muted/70 font-medium">Issuer</p>
+              <div className="flex items-center gap-1">
+                <p className="text-[12px] text-foreground font-mono truncate">{issuer}</p>
+                <CopyBtn text={issuer} />
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </div>
+    </CardShell>
+  );
+}
+
 /* ─── ROUTER ─── */
 export function TerminalDataCard({ type, data, onCancelSwap }: { type?: string; data: Record<string, unknown>; onCancelSwap?: (msgId: string) => void }) {
   switch (type) {
@@ -868,6 +953,8 @@ export function TerminalDataCard({ type, data, onCancelSwap }: { type?: string; 
       return <PoolCard data={data} />;
     case "swap":
       return <SwapCard data={data} onCancelSwap={onCancelSwap} />;
+    case "token-detail":
+      return <TokenDetailCard data={data} />;
     case "error":
       return <ErrorCard data={data} />;
     default:

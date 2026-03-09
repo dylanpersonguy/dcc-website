@@ -93,6 +93,11 @@ const fadeUp = {
   animate: { opacity: 1, y: 0 },
 };
 
+/* ─── Skeleton loader ─── */
+function Skeleton({ className = "" }: { className?: string }) {
+  return <div className={`skeleton ${className}`} />;
+}
+
 /* ─── Stat card ─── */
 function StatCard({
   icon: Icon,
@@ -101,6 +106,7 @@ function StatCard({
   sub,
   color,
   delay = 0,
+  loading = false,
 }: {
   icon: React.ComponentType<{ className?: string }>;
   label: string;
@@ -108,6 +114,7 @@ function StatCard({
   sub?: string;
   color: string;
   delay?: number;
+  loading?: boolean;
 }) {
   const colorMap: Record<string, string> = {
     primary: "text-primary bg-primary/10",
@@ -127,12 +134,21 @@ function StatCard({
       <div className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 ${colorMap[color] || colorMap.primary}`}>
         <Icon className="w-4.5 h-4.5" />
       </div>
-      <div className="min-w-0">
+      <div className="min-w-0 flex-1">
         <p className="text-[11px] uppercase tracking-wider text-muted/50 font-medium">{label}</p>
-        <p className="text-[18px] font-heading font-bold text-foreground tabular-nums leading-tight mt-0.5">
-          {value}
-        </p>
-        {sub && <p className="text-[11px] text-muted/50 mt-0.5 truncate">{sub}</p>}
+        {loading ? (
+          <>
+            <Skeleton className="h-6 w-20 mt-1" />
+            {sub && <Skeleton className="h-3 w-14 mt-1.5" />}
+          </>
+        ) : (
+          <>
+            <p className="text-[18px] font-heading font-bold text-foreground tabular-nums leading-tight mt-0.5">
+              {value}
+            </p>
+            {sub && <p className="text-[11px] text-muted/50 mt-0.5 truncate">{sub}</p>}
+          </>
+        )}
       </div>
     </motion.div>
   );
@@ -396,30 +412,46 @@ export default function DashboardOverview({ onOpenChat }: DashboardOverviewProps
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <div>
                 <p className="text-[10px] uppercase tracking-wider text-muted/40 font-medium">Available</p>
-                <p className="text-[20px] font-heading font-bold text-foreground tabular-nums">
-                  {balance ? balance.available.toFixed(4) : "—"}
-                </p>
+                {balance ? (
+                  <p className="text-[20px] font-heading font-bold text-foreground tabular-nums">
+                    {balance.available.toFixed(4)}
+                  </p>
+                ) : (
+                  <Skeleton className="h-7 w-28 mt-1" />
+                )}
                 <p className="text-[11px] text-primary font-medium">DCC</p>
               </div>
               <div>
                 <p className="text-[10px] uppercase tracking-wider text-muted/40 font-medium">Regular</p>
-                <p className="text-[16px] font-heading font-semibold text-foreground/80 tabular-nums">
-                  {balance ? balance.regular.toFixed(4) : "—"}
-                </p>
+                {balance ? (
+                  <p className="text-[16px] font-heading font-semibold text-foreground/80 tabular-nums">
+                    {balance.regular.toFixed(4)}
+                  </p>
+                ) : (
+                  <Skeleton className="h-5 w-24 mt-1" />
+                )}
                 <p className="text-[11px] text-muted/50">DCC</p>
               </div>
               <div>
                 <p className="text-[10px] uppercase tracking-wider text-muted/40 font-medium">Effective</p>
-                <p className="text-[16px] font-heading font-semibold text-foreground/80 tabular-nums">
-                  {balance ? balance.effective.toFixed(4) : "—"}
-                </p>
+                {balance ? (
+                  <p className="text-[16px] font-heading font-semibold text-foreground/80 tabular-nums">
+                    {balance.effective.toFixed(4)}
+                  </p>
+                ) : (
+                  <Skeleton className="h-5 w-24 mt-1" />
+                )}
                 <p className="text-[11px] text-muted/50">DCC</p>
               </div>
               <div>
                 <p className="text-[10px] uppercase tracking-wider text-muted/40 font-medium">Generating</p>
-                <p className="text-[16px] font-heading font-semibold text-foreground/80 tabular-nums">
-                  {balance ? balance.generating.toFixed(4) : "—"}
-                </p>
+                {balance ? (
+                  <p className="text-[16px] font-heading font-semibold text-foreground/80 tabular-nums">
+                    {balance.generating.toFixed(4)}
+                  </p>
+                ) : (
+                  <Skeleton className="h-5 w-24 mt-1" />
+                )}
                 <p className="text-[11px] text-muted/50">DCC</p>
               </div>
             </div>
@@ -503,6 +535,7 @@ export default function DashboardOverview({ onOpenChat }: DashboardOverviewProps
               sub="DCC"
               color="primary"
               delay={0}
+              loading={!snapshot && stakingOnline}
             />
             <StatCard
               icon={TrendingUp}
@@ -511,6 +544,7 @@ export default function DashboardOverview({ onOpenChat }: DashboardOverviewProps
               sub="stDCC → DCC"
               color="green"
               delay={1}
+              loading={!exchangeRate && stakingOnline}
             />
             <StatCard
               icon={Users}
@@ -519,6 +553,7 @@ export default function DashboardOverview({ onOpenChat }: DashboardOverviewProps
               sub="Total users"
               color="purple"
               delay={2}
+              loading={!snapshot && stakingOnline}
             />
             <StatCard
               icon={Activity}
@@ -527,6 +562,7 @@ export default function DashboardOverview({ onOpenChat }: DashboardOverviewProps
               sub="Active"
               color="blue"
               delay={3}
+              loading={!snapshot && !validators.length && stakingOnline}
             />
           </div>
         </div>

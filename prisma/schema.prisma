@@ -1,0 +1,277 @@
+// DecentralChain Blog Engine — Prisma Schema
+
+generator client {
+  provider = "prisma-client"
+  output   = "../lib/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ─── Enums ───
+
+enum BlogContentType {
+  PILLAR
+  SUPPORTING
+}
+
+enum BlogSearchIntent {
+  INFORMATIONAL
+  COMMERCIAL
+  NAVIGATIONAL
+}
+
+enum BlogAudienceLevel {
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
+}
+
+enum BlogOrphanStatus {
+  HEALTHY
+  AT_RISK
+  ORPHAN
+}
+
+enum BlogPostStatus {
+  DRAFT
+  PUBLISHED
+}
+
+enum BlogCategory {
+  AI_AGENTS
+  TRADING_BOTS
+  AUTOMATION
+  TUTORIALS
+  INDUSTRY_NEWS
+  WEB3
+}
+
+enum CannibalizationRisk {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+enum SerpIntentMatch {
+  STRONG
+  MEDIUM
+  WEAK
+}
+
+enum CommentStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum LinkingTaskType {
+  ADD_INTERNAL_LINKS
+  FIX_ORPHAN
+  IMPROVE_ANCHOR_TEXT
+  ADD_PILLAR_LINK
+  REDUCE_OUTBOUND
+  CLUSTER_INTERLINK
+}
+
+enum TaskPriority {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+enum TaskStatus {
+  OPEN
+  IN_PROGRESS
+  DONE
+}
+
+enum LinkPlacement {
+  INTRO
+  MID
+  CONCLUSION
+}
+
+enum LinkRuleStatus {
+  SUGGESTED
+  APPROVED
+  REJECTED
+  INSERTED
+}
+
+// ─── Models ───
+
+model BlogPost {
+  id            String         @id @default(cuid())
+  title         String
+  slug          String         @unique
+  content       String         @db.Text
+  excerpt       String?        @db.Text
+  featuredImage String?
+  authorName    String         @default("DecentralChain Editorial")
+  status        BlogPostStatus @default(DRAFT)
+  publishedDate DateTime?
+  lastUpdated   DateTime?
+  wordCount     Int            @default(0)
+  readingTime   Int            @default(1)
+  views         Int            @default(0)
+  noindex       Boolean        @default(false)
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  // Content strategy
+  contentType    BlogContentType   @default(SUPPORTING)
+  pillarPageId   String?
+  pillarPage     BlogPost?         @relation("PillarCluster", fields: [pillarPageId], references: [id], onDelete: SetNull)
+  childPosts     BlogPost[]        @relation("PillarCluster")
+  topicClusterId String?
+  blogCategory   BlogCategory      @default(AI_AGENTS)
+
+  // SEO fields
+  primaryKeyword    String?
+  secondaryKeywords String[]
+  keywordEntities   String[]
+  searchIntent      BlogSearchIntent  @default(INFORMATIONAL)
+  audienceLevel     BlogAudienceLevel @default(INTERMEDIATE)
+  seoTitle          String?
+  seoDescription    String?           @db.Text
+  serpTitleDesktop   String?
+  serpTitleMobile    String?
+  ogTitle           String?
+  ogDescription     String?           @db.Text
+  canonicalUrl      String?
+
+  // Internal linking
+  internalLinks        Json     @default("[]")
+  externalLinks        Json     @default("[]")
+  inboundLinkCount     Int      @default(0)
+  outboundLinkCount    Int      @default(0)
+  internalLinkScore    Int      @default(0)
+  orphanStatus         BlogOrphanStatus @default(ORPHAN)
+  lastInternalLinkAudit DateTime?
+
+  // Competitor/SERP fields
+  cannibalizationRisk         CannibalizationRisk?
+  cannibalizationAcknowledged Boolean              @default(false)
+  serpPreviewAcknowledged      Boolean              @default(false)
+  serpCountry                  String               @default("US")
+  serpLanguage                 String               @default("en")
+  competitorUrls               String[]
+  competitorSnapshotDate       DateTime?
+  competitorGapReport          Json?
+  serpIntentMatch              SerpIntentMatch?
+  contentHash                  String?
+  outlineGenerated             Boolean              @default(false)
+
+  // Relations
+  comments          BlogComment[]
+  linkingTasks      LinkingTask[]
+  outgoingLinkRules InternalLinkRule[] @relation("FromPost")
+  incomingLinkRules InternalLinkRule[] @relation("ToPost")
+
+  @@index([slug])
+  @@index([status])
+  @@index([blogCategory])
+  @@index([pillarPageId])
+  @@index([topicClusterId])
+  @@index([status, blogCategory, publishedDate])
+  @@index([status, publishedDate])
+}
+
+model BlogComment {
+  id         String        @id @default(cuid())
+  postId     String
+  post       BlogPost      @relation(fields: [postId], references: [id], onDelete: Cascade)
+  postTitle  String?
+  authorName String
+  authorEmail String?
+  content    String        @db.Text
+  status     CommentStatus @default(PENDING)
+  isRead     Boolean       @default(false)
+  createdAt  DateTime      @default(now())
+  updatedAt  DateTime      @updatedAt
+
+  @@index([postId])
+  @@index([status])
+}
+
+model LinkingTask {
+  id                 String          @id @default(cuid())
+  postId             String
+  post               BlogPost        @relation(fields: [postId], references: [id], onDelete: Cascade)
+  postTitle          String?
+  type               LinkingTaskType
+  priority           TaskPriority    @default(MEDIUM)
+  suggestionsMarkdown String?        @db.Text
+  targetPostIds      String[]
+  status             TaskStatus      @default(OPEN)
+  notes              String?         @db.Text
+  createdAt          DateTime        @default(now())
+  updatedAt          DateTime        @updatedAt
+
+  @@index([postId])
+  @@index([status])
+}
+
+model InternalLinkRule {
+  id             String         @id @default(cuid())
+  fromPostId     String
+  fromPost       BlogPost       @relation("FromPost", fields: [fromPostId], references: [id], onDelete: Cascade)
+  toPostId       String
+  toPost         BlogPost       @relation("ToPost", fields: [toPostId], references: [id], onDelete: Cascade)
+  anchorText     String
+  placementHint  LinkPlacement  @default(MID)
+  relevanceScore Int            @default(50)
+  status         LinkRuleStatus @default(SUGGESTED)
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+
+  @@index([fromPostId])
+  @@index([toPostId])
+  @@index([status])
+}
+
+model Redirect {
+  id         String   @id @default(cuid())
+  fromPath   String   @unique
+  toPath     String
+  statusCode Int      @default(301)
+  reason     String?
+  isActive   Boolean  @default(true)
+  hitCount   Int      @default(0)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([fromPath])
+  @@index([isActive])
+}
+
+model Automation {
+  id          String   @id @default(cuid())
+  name        String
+  type        String   // e.g. "github_scanner"
+  enabled     Boolean  @default(true)
+  config      Json     @default("{}")
+  lastRunAt   DateTime?
+  lastRunStatus String? // "success" | "error"
+  lastRunMessage String?
+  runCount    Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  runs        AutomationRun[]
+}
+
+model AutomationRun {
+  id           String   @id @default(cuid())
+  automationId String
+  automation   Automation @relation(fields: [automationId], references: [id], onDelete: Cascade)
+  status       String   // "running" | "success" | "error"
+  message      String?
+  resultPostId String?
+  resultSlug   String?
+  createdAt    DateTime @default(now())
+
+  @@index([automationId])
+}

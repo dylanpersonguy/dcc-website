@@ -658,11 +658,12 @@ export default function TerminalChat({ initialCommand, onCommandConsumed }: Term
   }); // intentionally no deps — runs each render to catch new initialCommands
 
   const showWelcome = messages.length === 0;
+  const themeClass = settings.chatTheme && settings.chatTheme !== "default" ? `chat-theme-${settings.chatTheme}` : "";
 
   return (
-    <div className="flex flex-col h-full">
+    <div className={`flex flex-col h-full ${themeClass}`}>
       {/* Messages area */}
-      <div className="flex-1 overflow-y-auto px-4 md:px-6 py-6">
+      <div className="flex-1 overflow-y-auto px-4 md:px-6 py-6 chat-messages-area">
         <div className="max-w-[760px] mx-auto">
           {/* Offline banner */}
           <AnimatePresence>
@@ -746,20 +747,20 @@ export default function TerminalChat({ initialCommand, onCommandConsumed }: Term
                     initial={{ scale: 0.6, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
                     transition={{ type: "spring", stiffness: 400, damping: 20 }}
-                    className="w-8 h-8 rounded-xl bg-gradient-to-br from-primary/15 to-blue-500/15 flex items-center justify-center flex-shrink-0 mt-1 shadow-sm shadow-primary/5"
+                    className="w-8 h-8 rounded-xl bg-gradient-to-br from-primary/15 to-blue-500/15 flex items-center justify-center flex-shrink-0 mt-1 shadow-sm shadow-primary/5 overflow-hidden"
                   >
-                    <Bot className="w-4 h-4 text-primary" />
+                    <Image src="/logo.png" alt="DCC" width={20} height={20} className="rounded" />
                   </motion.div>
                 )}
                 <div
                   className={`max-w-[85%] md:max-w-[80%] ${
                     msg.role === "user"
-                      ? "bg-gradient-to-br from-primary/12 to-primary/6 border border-primary/20 rounded-2xl rounded-tr-sm px-4 py-3 shadow-sm shadow-primary/5"
-                      : "bg-gradient-to-br from-surface-elevated/60 to-surface-elevated/30 border border-white/[0.06] rounded-2xl rounded-tl-sm px-4 py-3 shadow-sm"
+                      ? "chat-bubble-user bg-gradient-to-br from-primary/12 to-primary/6 border border-primary/20 rounded-2xl rounded-tr-sm px-4 py-3 shadow-sm shadow-primary/5"
+                      : "chat-bubble-bot bg-gradient-to-br from-surface-elevated/60 to-surface-elevated/30 border border-white/[0.06] rounded-2xl rounded-tl-sm px-4 py-3 shadow-sm"
                   }`}
                 >
                   <div
-                    className={`text-[14px] leading-relaxed ${
+                    className={`chat-md-text text-[14px] leading-relaxed ${
                       msg.role === "user" ? "text-foreground" : "text-foreground/90"
                     }`}
                     dangerouslySetInnerHTML={{ __html: formatMarkdown(msg.content) }}
@@ -768,7 +769,7 @@ export default function TerminalChat({ initialCommand, onCommandConsumed }: Term
                   {msg.role === "assistant" && (
                     <FollowUpSuggestions type={msg.type} data={msg.data} onSelect={handleSubmit} />
                   )}
-                  <div className="text-[10px] text-muted/30 mt-2.5 select-none flex items-center gap-1.5">
+                  <div className="chat-timestamp text-[10px] text-muted/30 mt-2.5 select-none flex items-center gap-1.5">
                     <span>{new Date(msg.timestamp).toLocaleTimeString()}</span>
                     {msg.role === "user" && <span className="text-primary/40">✓</span>}
                   </div>
@@ -796,12 +797,12 @@ export default function TerminalChat({ initialCommand, onCommandConsumed }: Term
                   transition={{ type: "spring", stiffness: 300, damping: 25 }}
                   className="flex gap-3 justify-start"
                 >
-                  <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-primary/15 to-blue-500/15 flex items-center justify-center flex-shrink-0 shadow-sm shadow-primary/5">
+                  <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-primary/15 to-blue-500/15 flex items-center justify-center flex-shrink-0 shadow-sm shadow-primary/5 overflow-hidden">
                     <motion.div
                       animate={{ rotate: 360 }}
                       transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
                     >
-                      <Bot className="w-4 h-4 text-primary" />
+                      <Image src="/logo.png" alt="DCC" width={20} height={20} className="rounded" />
                     </motion.div>
                   </div>
                   <div className="bg-gradient-to-br from-surface-elevated/60 to-surface-elevated/30 border border-white/[0.06] rounded-2xl rounded-tl-sm px-4 py-3 shadow-sm">
@@ -878,7 +879,7 @@ export default function TerminalChat({ initialCommand, onCommandConsumed }: Term
                 placeholder="✨ Ask anything about the blockchain..."
                 disabled={isLoading}
                 rows={1}
-                className="relative w-full resize-none bg-surface/60 border border-white/[0.08] rounded-xl pl-4 pr-12 py-3.5 text-[14px] text-foreground placeholder:text-muted/40 focus:outline-none focus:border-primary/30 focus:ring-1 focus:ring-primary/10 transition-all disabled:opacity-50"
+                className="chat-input-area relative w-full resize-none bg-surface/60 border border-white/[0.08] rounded-xl pl-4 pr-12 py-3.5 text-[14px] text-foreground placeholder:text-muted/40 focus:outline-none focus:border-primary/30 focus:ring-1 focus:ring-primary/10 transition-all disabled:opacity-50"
               />
               <motion.button
                 type="button"

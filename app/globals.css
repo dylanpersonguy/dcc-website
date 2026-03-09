@@ -94,7 +94,7 @@ body {
 
 /* ——— Text Gradients ——— */
 .text-gradient {
-  background: linear-gradient(135deg, #14F195 0%, #00C853 50%, #00E676 100%);
+  background: linear-gradient(135deg, #00E5FF 0%, #6C63FF 50%, #38bdf8 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -405,4 +405,161 @@ body {
   --color-foreground: #1A1A2E;
   --color-muted: #6B6B80;
   --color-dim: #A0A0B8;
+}
+
+/* ═══════════════════════════════════════════
+   ADAPTIVE OVERLAY UTILITIES
+   Works in both dark and light mode
+   ═══════════════════════════════════════════ */
+.bg-overlay {
+  background: rgba(255, 255, 255, 0.04);
+}
+.bg-overlay-hover:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+.border-subtle {
+  border-color: rgba(255, 255, 255, 0.06);
+}
+
+[data-theme="light"] .bg-overlay {
+  background: rgba(0, 0, 0, 0.03);
+}
+[data-theme="light"] .bg-overlay-hover:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+[data-theme="light"] .border-subtle {
+  border-color: rgba(0, 0, 0, 0.08);
+}
+
+/* ═══════════════════════════════════════════
+   LOADING SKELETON
+   ═══════════════════════════════════════════ */
+.skeleton {
+  position: relative;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 0.5rem;
+}
+.skeleton::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.06), transparent);
+  animation: shimmer 1.5s ease-in-out infinite;
+}
+[data-theme="light"] .skeleton {
+  background: rgba(0, 0, 0, 0.06);
+}
+[data-theme="light"] .skeleton::after {
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.5), transparent);
+}
+
+/* ═══════════════════════════════════════════
+   TOAST ANIMATIONS
+   ═══════════════════════════════════════════ */
+@keyframes toast-in {
+  from { transform: translateY(100%) scale(0.95); opacity: 0; }
+  to { transform: translateY(0) scale(1); opacity: 1; }
+}
+@keyframes toast-out {
+  from { transform: translateY(0) scale(1); opacity: 1; }
+  to { transform: translateY(100%) scale(0.95); opacity: 0; }
+}
+
+/* ═══════════════════════════════════════════
+   CHAT THEME VARIANTS
+   ═══════════════════════════════════════════ */
+.chat-theme-default {
+  /* Default — uses normal site colors */
+}
+.chat-theme-hacker {
+  --chat-bg: #0a0f0a;
+  --chat-fg: #00ff41;
+  --chat-muted: #00cc33;
+  --chat-accent: #00ff41;
+  --chat-bubble-user: rgba(0, 255, 65, 0.08);
+  --chat-bubble-bot: rgba(0, 255, 65, 0.03);
+  --chat-border: rgba(0, 255, 65, 0.12);
+  --chat-input-bg: rgba(0, 255, 65, 0.04);
+}
+.chat-theme-retro {
+  --chat-bg: #1a0a2e;
+  --chat-fg: #ff6ec7;
+  --chat-muted: #a855f7;
+  --chat-accent: #ff6ec7;
+  --chat-bubble-user: rgba(255, 110, 199, 0.08);
+  --chat-bubble-bot: rgba(168, 85, 247, 0.04);
+  --chat-border: rgba(255, 110, 199, 0.12);
+  --chat-input-bg: rgba(168, 85, 247, 0.04);
+}
+.chat-theme-midnight {
+  --chat-bg: #0a0a1a;
+  --chat-fg: #7dd3fc;
+  --chat-muted: #3b82f6;
+  --chat-accent: #38bdf8;
+  --chat-bubble-user: rgba(56, 189, 248, 0.08);
+  --chat-bubble-bot: rgba(59, 130, 246, 0.04);
+  --chat-border: rgba(56, 189, 248, 0.12);
+  --chat-input-bg: rgba(59, 130, 246, 0.04);
+}
+.chat-theme-amber {
+  --chat-bg: #1a1208;
+  --chat-fg: #fbbf24;
+  --chat-muted: #d97706;
+  --chat-accent: #fbbf24;
+  --chat-bubble-user: rgba(251, 191, 36, 0.08);
+  --chat-bubble-bot: rgba(217, 119, 6, 0.04);
+  --chat-border: rgba(251, 191, 36, 0.12);
+  --chat-input-bg: rgba(217, 119, 6, 0.04);
+}
+
+/* Chat theme application — CSS custom properties applied to themed container */
+[class*="chat-theme-"]:not(.chat-theme-default) .chat-messages-area {
+  background: var(--chat-bg);
+}
+[class*="chat-theme-"]:not(.chat-theme-default) .chat-bubble-bot {
+  background: var(--chat-bubble-bot);
+  border-color: var(--chat-border);
+  color: var(--chat-fg);
+}
+[class*="chat-theme-"]:not(.chat-theme-default) .chat-bubble-user {
+  background: var(--chat-bubble-user);
+  border-color: var(--chat-border);
+  color: var(--chat-fg);
+}
+[class*="chat-theme-"]:not(.chat-theme-default) .chat-input-area {
+  background: var(--chat-input-bg);
+  border-color: var(--chat-border);
+  color: var(--chat-fg);
+}
+[class*="chat-theme-"]:not(.chat-theme-default) .chat-input-area::placeholder {
+  color: var(--chat-muted);
+}
+[class*="chat-theme-"]:not(.chat-theme-default) .chat-md-text {
+  color: var(--chat-fg);
+}
+[class*="chat-theme-"]:not(.chat-theme-default) .chat-md-text strong {
+  color: var(--chat-accent);
+}
+[class*="chat-theme-"]:not(.chat-theme-default) .chat-timestamp {
+  color: var(--chat-muted);
+}
+
+/* ═══════════════════════════════════════════
+   LIGHT MODE — Component-level fixes
+   ═══════════════════════════════════════════ */
+/* Fix hardcoded white/opacity backgrounds in light mode */
+[data-theme="light"] [class*="bg-white/[0.0"] {
+  background: rgba(0, 0, 0, 0.03);
+}
+[data-theme="light"] [class*="border-white/[0.0"] {
+  border-color: rgba(0, 0, 0, 0.08);
+}
+[data-theme="light"] [class*="hover:bg-white/[0.0"]:hover {
+  background: rgba(0, 0, 0, 0.06);
+}
+
+/* Fix shadow colors in light mode */
+[data-theme="light"] [class*="shadow-black/"] {
+  --tw-shadow-color: rgba(0, 0, 0, 0.08);
 }

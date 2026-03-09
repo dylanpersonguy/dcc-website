@@ -80,7 +80,7 @@ export async function getProtocolSnapshot(): Promise<ProtocolSnapshot> {
   return {
     totalStaked: num(raw.total_pooled_dcc),
     totalShares: num(raw.total_shares),
-    exchangeRate: num(raw.exchange_rate),
+    exchangeRate: 1, // stDCC is always 1:1 with DCC
     totalUsers: 0, // not in snapshot endpoint
     totalValidators: num(raw.validator_count),
     totalRewards: num(raw.total_protocol_fees_dcc),
@@ -98,7 +98,7 @@ export async function getSnapshotHistory(): Promise<ProtocolSnapshot[]> {
   return list.map((raw: any) => ({
     totalStaked: num(raw.total_pooled_dcc),
     totalShares: num(raw.total_shares),
-    exchangeRate: num(raw.exchange_rate),
+    exchangeRate: 1, // stDCC is always 1:1 with DCC
     totalUsers: 0,
     totalValidators: num(raw.validator_count),
     totalRewards: num(raw.total_protocol_fees_dcc),
@@ -112,12 +112,10 @@ export async function getSnapshotHistory(): Promise<ProtocolSnapshot[]> {
 /* ─── Chain (live reads) ─── */
 
 export async function getLiveExchangeRate(): Promise<ExchangeRate> {
-  const raw = await fetchStaking("/chain/exchange-rate");
-  // API: { exchangeRate: "100000000", dccPerStDcc: 1, ... }
-  const dccPerStDcc = num(raw.dccPerStDcc) || num(raw.exchangeRate) / 1e8 || 1;
+  // stDCC is always 1:1 with DCC
   return {
-    rate: dccPerStDcc,
-    inverse: dccPerStDcc !== 0 ? 1 / dccPerStDcc : 0,
+    rate: 1,
+    inverse: 1,
     timestamp: Date.now(),
   };
 }
@@ -185,7 +183,7 @@ export async function estimateDeposit(amount: number): Promise<DepositEstimate> 
   return {
     amountIn: num(raw.depositAmount),
     sharesOut: num(raw.sharesToReceive),
-    exchangeRate: num(raw.dccPerStDcc) || num(raw.exchangeRate) / 1e8 || 1,
+    exchangeRate: 1, // stDCC is always 1:1 with DCC
     fee: 0, // API doesn't return a fee field for deposits
   };
 }
@@ -202,7 +200,7 @@ export async function estimateWithdraw(shares: number): Promise<WithdrawEstimate
   return {
     sharesIn: num(raw.sharesToBurn),
     amountOut: num(raw.dccToReceive),
-    exchangeRate: num(raw.dccPerStDcc) || num(raw.exchangeRate) / 1e8 || 1,
+    exchangeRate: 1, // stDCC is always 1:1 with DCC
     fee: 0,
     pendingDuration: "~7 days",
   };
